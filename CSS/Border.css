@@ -1,0 +1,34 @@
+﻿/**
+ * @title 透明边框
+ * @tags 透明 边框
+ * @create 2011-09-25
+ * @author lonthink
+ *
+ * @context
+ * 	<div class="box" styel="display:none;">
+ *		<div class="warper">
+ *		....
+ *		</div>
+ *		<div class="sharp"></div>
+ *	</div>	
+ */
+.warper{
+  background:#FAFAFA;
+  position:relative;
+  z-index:3;
+}
+.sharp{
+  width:100%;
+  height:100%;
+  position:absolute;
+  left:-5px;
+  top:-5px;
+  padding:5px;
+  background:#000000;
+  z-index:2;
+  filter:alpha(opacity=50);           /* IE */
+  -moz-opacity:0.5;                   /* Moz + FF */
+  opacity: 0.5;                       /* 支持CSS3的浏览器（FF 1.5也支持）*/
+}
+
+

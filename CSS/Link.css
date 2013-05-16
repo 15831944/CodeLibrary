@@ -1,0 +1,11 @@
+﻿/**
+ * @title 让超接连点击时不出现边框线
+ * @tags 超接连 点击 边框线
+ * @create 2011-09-25
+ * @author lonthink	
+ */
+a{
+  outline: medium none;
+}
+
+

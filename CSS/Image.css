@@ -1,0 +1,27 @@
+﻿/**
+ * @title 缩略图居中显示
+ * @discription discription 
+ * @tags 缩略图 居中
+ * @see see 
+ * @create 2011-09-25
+ * @author lonthink
+ *
+ * @context
+ *  <li class="imgcenter">
+ *    <a ><img /></a>
+ *  </li>
+ */
+.imgcenter{
+  display:inline;
+  background:#eee;
+}
+.imgcenter a{
+  display:block;
+  text-align:center;
+  background-color:#C8D2E0;
+  line-height:84px;
+  font-size:84px;
+}
+.imgcenter a img{
+  *vertical-align:middle;
+}
