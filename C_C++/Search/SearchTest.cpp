@@ -1,8 +1,10 @@
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 #include <windows.h>
 
 #include "BinarySearch.h"
+#include "HashSearch.h"
 
 using namespace std;
 
@@ -16,12 +18,30 @@ void generateTestData(int *arr, int len)
 void BinarySearchTest(int *arr, int len)
 {
     int l = len -1;
-    int *pos;
+    int *pos = NULL;
     for(int i = 0; i < len; ++i){
         BinarySearch_I(arr, 0, l, i, pos);
     }
 }
 
+void HashSearchTest_Str()
+{
+    unsigned long ulHashValue;   
+  
+     /*初始化数组：crytTable[0x500]*/  
+     prepareCryptTable();  
+
+     //printTable();
+
+     ulHashValue = HashString("600570SS", 0 );  
+     cout << ulHashValue << endl;
+  
+     ulHashValue = HashString("600570SS", 1 );  
+     cout << ulHashValue << endl;  
+  
+     ulHashValue = HashString("600570SS", 2 );  
+     cout << ulHashValue << endl;
+}
 
 int main()
 {
@@ -45,6 +65,8 @@ int main()
     cout << "BinarySearch: cost= " << time << ", per= " << (time * 1000000/ len) << endl;
 
     cout << "nFreq: " << nFreq.QuadPart << endl;
+
+    HashSearchTest_Str();
 
     int i;
     cin >> i;

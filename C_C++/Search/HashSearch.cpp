@@ -1,9 +1,9 @@
 #include "HashSearch.h"
-
+  
 //crytTable[]里面保存的是HashString函数里面将会用到的一些数据，在prepareCryptTable  
 //函数里面初始化  
 unsigned long cryptTable[0x500];  
-  
+
 //以下的函数生成一个长度为0x500（合10进制数：1280）的cryptTable[0x500]  
 void prepareCryptTable()  
 {   
@@ -45,25 +45,12 @@ unsigned long seed2 = 0xEEEEEEEE;
     }  
     return seed1;   
 }  
-  
-//在main中测试argv[1]的三个hash值：  
-//./hash  "arr/units.dat"  
-//./hash  "unit/neutral/acritter.grp"  
-int main( int argc, char **argv )  
-{  
-    unsigned long ulHashValue;  
-    int i = 0;  
-  
-    if ( argc != 2 )  
-    {  
-        printf("please input two arguments/n");  
-        return -1;  
-    }  
-  
-     /*初始化数组：crytTable[0x500]*/  
-     prepareCryptTable();  
-  
-     /*打印数组crytTable[0x500]里面的值*/  
+ 
+
+void printTable()
+{
+    int i = 0;
+    /*打印数组crytTable[0x500]里面的值*/  
      for ( ; i < 0x500; i++ )  
      {  
          if ( i % 10 == 0 )  
@@ -73,15 +60,4 @@ int main( int argc, char **argv )
   
          printf("%-12X", cryptTable[i] );  
      }  
-  
-     ulHashValue = HashString( argv[1], 0 );  
-     printf("/n----%X ----/n", ulHashValue );  
-  
-     ulHashValue = HashString( argv[1], 1 );  
-     printf("----%X ----/n", ulHashValue );  
-  
-     ulHashValue = HashString( argv[1], 2 );  
-     printf("----%X ----/n", ulHashValue );  
-  
-     return 0;  
-}  
+}
