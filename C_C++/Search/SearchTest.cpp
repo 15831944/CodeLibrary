@@ -2,11 +2,14 @@
 #include <cstdlib>
 #include <cstdio>
 #include <windows.h>
+#include <cstring>
 
 #include "BinarySearch.h"
 #include "HashSearch.h"
 
 using namespace std;
+
+int tableItemCount = 0;
 
 void generateTestData(int *arr, int len)
 {
@@ -24,24 +27,57 @@ void BinarySearchTest(int *arr, int len)
     }
 }
 
-void HashSearchTest_Str()
-{
-    unsigned long ulHashValue;   
-  
-     /*初始化数组：crytTable[0x500]*/  
-     prepareCryptTable();  
+void generateHashSearchData_Str(MPQHASHTABLE *pHashTable)
+{ 
+    int i = 0;
+    int idx = 0;
+    int pos = 0;
+    char t[9] = {0};
 
-     //printTable();
+    for(i = 300000; i < 305000; ++i){
+        sprintf(t, "%dSZ", i);
+        idx = AddHashItem(t, pHashTable, HashTableSize);
+        //cout << pos << " " << t << endl;
+        tableItemCount++;
+    }
 
-     ulHashValue = HashString("600570SS", 0 );  
-     cout << ulHashValue << endl;
-  
-     ulHashValue = HashString("600570SS", 1 );  
-     cout << ulHashValue << endl;  
-  
-     ulHashValue = HashString("600570SS", 2 );  
-     cout << ulHashValue << endl;
+    for(i = 600000; i < 605000; ++i){
+        sprintf(t, "%dSS", i);
+        idx = AddHashItem(t, pHashTable, HashTableSize);
+
+        //cout << pos << " " << t << endl;
+        tableItemCount++;
+    }
 }
+
+void HashSearchTest_Str(MPQHASHTABLE *pHashTable)
+{
+    int i = 0;
+    int idx = 0;
+    char t[9] = {0};
+    int pos = 0;
+
+    for(i = 300000; i < 305000; ++i){
+        sprintf(t, "%dSZ", i);
+        idx = GetHashTablePos(t, pHashTable, HashTableSize, &pos);
+        //memcpy(pHashTable[idx].p, t, sizeof(t));
+       // cout << pHashTable[idx].p << "  " << i << endl;
+        if(idx > 0){
+           tableItemCount--;
+        }
+    }
+
+    for(i = 600000; i < 605000; ++i){
+        sprintf(t, "%dSS", i);
+        idx = GetHashTablePos(t, pHashTable, HashTableSize, &pos);
+        //memcpy(pHashTable[idx].p, t, sizeof(t));
+       // cout << pHashTable[idx].p << "  " << i << endl;
+        if(idx > 0){
+           tableItemCount--;
+        }
+    }
+}
+
 
 int main()
 {
@@ -55,11 +91,12 @@ int main()
     double time;
 
     QueryPerformanceFrequency(&nFreq);
+
     
     SYSTEMTIME sys; 
     GetLocalTime( &sys );
     printf( "%02d.%03d \n", sys.wSecond, sys.wMilliseconds);     
-    
+
     QueryPerformanceCounter(&nBeginTime); 
     BinarySearchTest(arr, len);
     QueryPerformanceCounter(&nEndTime);
@@ -68,13 +105,31 @@ int main()
     printf( "%02d.%03d \n", sys.wSecond, sys.wMilliseconds);     
     time=(double)(nEndTime.QuadPart - nBeginTime.QuadPart)/(double)nFreq.QuadPart;
 
-    cout << "BinarySearch: cost= " << time << ", per= " << (time * 1000000/ len) << endl;
-    
-    
+    cout << "BinarySearch: cost= " << time << ", per= " << (time * 1000000/ len) << ", len=" << len << endl;
+
 
     cout << "nFreq: " << nFreq.QuadPart << endl;
 
-    HashSearchTest_Str();
+    MPQHASHTABLE *pHashTable = prepareHashTable();
+    prepareCryptTable();  
+    generateHashSearchData_Str(pHashTable);
+
+    SYSTEMTIME sys; 
+    GetLocalTime( &sys ); 
+    
+    printf( "%02d.%03d   %d\n", sys.wSecond, sys.wMilliseconds, tableItemCount); 
+
+    QueryPerformanceCounter(&nBeginTime); 
+    HashSearchTest_Str(pHashTable);
+    QueryPerformanceCounter(&nEndTime);
+
+    GetLocalTime( &sys ); 
+    printf( "%02d.%03d    %d\n", sys.wSecond, sys.wMilliseconds, tableItemCount); 
+
+
+    time=(double)(nEndTime.QuadPart - nBeginTime.QuadPart)/(double)nFreq.QuadPart;
+
+    cout << "HashSearch: cost= " << time << ", per= " << (time * 1000000/ 10000) << endl;
 
     int i;
     cin >> i;
