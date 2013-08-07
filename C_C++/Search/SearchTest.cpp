@@ -55,14 +55,22 @@ int main()
     double time;
 
     QueryPerformanceFrequency(&nFreq);
+    
+    SYSTEMTIME sys; 
+    GetLocalTime( &sys );
+    printf( "%02d.%03d \n", sys.wSecond, sys.wMilliseconds);     
+    
     QueryPerformanceCounter(&nBeginTime); 
-
     BinarySearchTest(arr, len);
-
     QueryPerformanceCounter(&nEndTime);
+    
+    GetLocalTime( &sys );
+    printf( "%02d.%03d \n", sys.wSecond, sys.wMilliseconds);     
     time=(double)(nEndTime.QuadPart - nBeginTime.QuadPart)/(double)nFreq.QuadPart;
 
     cout << "BinarySearch: cost= " << time << ", per= " << (time * 1000000/ len) << endl;
+    
+    
 
     cout << "nFreq: " << nFreq.QuadPart << endl;
 
