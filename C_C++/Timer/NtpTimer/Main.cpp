@@ -5,6 +5,7 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <Windows.h>
+#include <iostream>
 
 #define debug 1
 #define TIMEOUT 3
@@ -15,134 +16,59 @@
 
 #pragma comment(lib,"ws2_32.lib") 
 
-void construct_ntp_packet(char content[])
-{
-    time_t           timer;
-
-    memset(content, 0, 48);
-    content[0] = 0x1b;             // LI = 0 ; VN = 3 ; Mode = 3 (client);
-    
-    time((time_t *)&timer);
-    timer = htonl(timer + JAN_1970 );
-    
-    printf("construct_ntp_packet memcpy\n");
-    memcpy(content + 40, &timer, sizeof(timer));  //trans_timastamp
-    
-    printf("construct_ntp_packet memcpy end\n");
-}
-
-int get_ntp_time(int sockfd, struct sockaddr_in *server_addr, struct tm *net_tm) 
-{
-    char           content[256];
-    time_t         timet;
-    long           temp;
-    int            addr_len = 16;
-    struct timeval block_time;
-    fd_set         sockfd_set;
-
-    FD_ZERO(&sockfd_set);
-    FD_SET(sockfd, &sockfd_set);
-    block_time.tv_sec = TIMEOUT;      //time out 
-    block_time.tv_usec = 0;
-
-    printf("construct_ntp_packet\n");
-    
-    construct_ntp_packet(content);
-    
-    printf("sendto\n");
-    if (sendto(sockfd, content, 48, 0, (struct sockaddr *)server_addr, addr_len) < 0) {
-#if debug
-        printf("sendto error");
-        printf("send error:%d\n", WSAGetLastError());
-#endif
-        return (-1);
-    }
-
-    printf("select\n");
-    if(select(sockfd + 1, &sockfd_set, NULL, NULL, &block_time ) > 0) {
-        if (recvfrom(sockfd, content, 256, 0, (struct sockaddr *)server_addr, (socklen_t *)&addr_len) < 0) {
-#if debug
-            perror("recvfrom error");
-#endif
-            return (-1);
-        }
-        else {
-            memcpy(&temp, content + 40, 4);
-            temp = (time_t)(ntohl(temp) - JAN_1970 );
-            timet = (time_t)temp;
-            memcpy(net_tm, gmtime(&timet), sizeof(struct tm));
-
-            net_tm->tm_hour = net_tm->tm_hour + 8;  //beijing time zone
-        }
-    }
-    else {
-        return(-1);
-    }
-    return(0);
-}
+using namespace std;
 
 int main()
 {
-    int                  sockfd, i;
-    struct tm            *net_tm;
-    struct sockaddr_in   addr;
-    char                 ip[4][16]= { { NTP_SERVER_1 } , { NTP_SERVER_2 }, { NTP_SERVER_3 } };
-    char                 date_buf[50];
-    
-     SOCKET uiFdSocket;
+    while(1){
+    WSADATA  Ws;
+	if (WSAStartup(MAKEWORD(2,2), &Ws) != 0 )
+	{
+		cout<<"Init Windows Socket Failed::"<<GetLastError()<<endl;
+		return 0;
+	}
+	SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); 
+	if (s == INVALID_SOCKET) 
+	{ 
+		std::cout<<"create socket error"<<std::endl; 
+		return 0;  
+	} 
+	sockaddr_in servAddr;
+	memset(&servAddr,0,sizeof(sockaddr_in));
+	servAddr.sin_family = AF_INET; 
+	servAddr.sin_port = htons(37); 
+	servAddr.sin_addr.S_un.S_addr = inet_addr("132.163.4.101");
+	if (SOCKET_ERROR == connect(s, (sockaddr *)&servAddr, sizeof(servAddr))) 
+	{ 
+		std::cout<<"connect socket error"<<std::endl; 
+		return 0; 
+	} 
+	ULONG ulTime = 0; 
+	int nRecv = recv(s, (char *)&ulTime, sizeof(ulTime), 0); 
+	std::cout<<ulTime<<std::endl;
 
-   WSADATA wsaData;
+	ulTime = ntohl(ulTime) - JAN_1970; 
+	closesocket(s); 
 
-   char szbuffer[1024] = "\0";
+	std::cout<<ulTime<<std::endl;
 
-   struct sockaddr_in stServerAddr;
+	cout<<"----------------------"<<endl;
+	time_t timep = ulTime;
+	struct tm *t;
+	t = gmtime(&timep);
+	printf("%04d-%02d-%02d %02d:%02d:%02d\n"
+		, t->tm_year + 1900
+		, t->tm_mon +1
+		, t->tm_mday
+		, t->tm_hour +8
+		, t->tm_min
+		, t->tm_sec);
 
-   struct sockaddr_in stClientAddr;
-
-   int iAddrlen = sizeof(sockaddr_in);
-   
-   printf("WSAStartup\n");
-   
-    if (0 != WSAStartup(MAKEWORD(2,1), &wsaData)) 
-
-    {
-
-         printf("Winsock init failed!\r\n");
-
-         WSACleanup();
-
-         return 0;
+    Sleep(1000);
 
     }
-
-    printf("loop\n");
-    net_tm = (struct tm *)malloc(sizeof(struct tm));
-
-    for (i = 0 ; i < 3 ; i++ ) {
-        memset(&addr, 0, sizeof(addr));
-        addr.sin_addr.s_addr = inet_addr( ip[i] );
-        addr.sin_port = htons(123);
-        
-         printf("loop %d\n", i);
-         
-        if((sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
-#if debug
-            printf("socket error");
-#endif
-            WSAGetLastError();
-            return 0;
-        }
-    
-        printf("get_ntp_time\n");
-        if (get_ntp_time(sockfd, &addr, net_tm) == 0) {
-            break;
-        }
-
-        closesocket(sockfd);
-    }
-    
-    strftime(date_buf, sizeof(date_buf), "date -s \"%F %T\"", net_tm);
-    system(date_buf);
+    int c;
+    cin >> c;
 
     return (0);
 }
