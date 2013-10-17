@@ -61,6 +61,8 @@ void PrintTimeNano(TimerNano& obj)
 
 double GetCurrentTimerFlag()
 {
+    QueryPerformanceCounter(&nBeginTime);
+    TimerFlag = (double)(nBeginTime.QuadPart)/(double)nFreq.QuadPart;
     return TimerFlag;
 }
 

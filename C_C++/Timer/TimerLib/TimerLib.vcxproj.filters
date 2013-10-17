@@ -15,24 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="timerlib.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\Timer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerLib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="luaunit.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\Timer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="export.h">
+    <ClInclude Include="Export.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Luaunit.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

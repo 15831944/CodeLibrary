@@ -1,23 +1,20 @@
 // dllmain.cpp : 定义 DLL 应用程序的入口点。
 #include <cstdio>
 
-
 #if defined(_WINDOWS) || defined(WIN32) || defined(_WIN32)
 
 #include <windows.h>
+#include "Timer.h"
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
                      )
 {
-    int threadId = GetCurrentThreadId();
-    int processId = GetCurrentProcessId();
-
-    printf("cache library call into. process=%d, thread=%d\n", processId, threadId);
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        InitTimer();
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:

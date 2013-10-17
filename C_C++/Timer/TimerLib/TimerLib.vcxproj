@@ -50,7 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TIMERLIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(LUA_DEV)\include;$(SolutionDir)$..\..</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LUA_DEV)\include;$(SolutionDir)..</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -68,23 +68,26 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;TIMERLIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(LUA_DEV)\include;$(SolutionDir)..</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(LUA_DEV)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>lua5.1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Timer.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="timerlib.cpp" />
+    <ClCompile Include="Dllmain.cpp" />
+    <ClCompile Include="TimerLib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Timer.h" />
-    <ClInclude Include="export.h" />
-    <ClInclude Include="luaunit.h" />
+    <ClInclude Include="Export.h" />
+    <ClInclude Include="Luaunit.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
