@@ -18,9 +18,10 @@
 
 using namespace std;
 
-int main()
+int TimeProtocol()
 {
-    while(1){
+    cout << "====time protocol start====" << endl;
+
     WSADATA  Ws;
 	if (WSAStartup(MAKEWORD(2,2), &Ws) != 0 )
 	{
@@ -63,10 +64,17 @@ int main()
 		, t->tm_hour +8
 		, t->tm_min
 		, t->tm_sec);
+ 
+    cout << "====time protocol end====" << endl;
 
-    Sleep(1000);
+    return 0;
+}
 
-    }
+int main()
+{
+    TimeProtocol();
+
+    cout << "end." << endl;
     int c;
     cin >> c;
 
