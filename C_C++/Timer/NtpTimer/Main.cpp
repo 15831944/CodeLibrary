@@ -7,6 +7,8 @@
 #include <Windows.h>
 #include <iostream>
 
+#include "SntpTimer.h"
+
 #define debug 1
 #define TIMEOUT 3
 #define JAN_1970 0x83AA7E80
@@ -38,7 +40,7 @@ int TimeProtocol()
 	memset(&servAddr,0,sizeof(sockaddr_in));
 	servAddr.sin_family = AF_INET; 
 	servAddr.sin_port = htons(37); 
-	servAddr.sin_addr.S_un.S_addr = inet_addr("132.163.4.101");
+	servAddr.sin_addr.S_un.S_addr = inet_addr("198.60.73.8");
 	if (SOCKET_ERROR == connect(s, (sockaddr *)&servAddr, sizeof(servAddr))) 
 	{ 
 		std::cout<<"connect socket error"<<std::endl; 
@@ -72,7 +74,8 @@ int TimeProtocol()
 
 int main()
 {
-    TimeProtocol();
+    //TimeProtocol();
+    SntpTimerTest();
 
     cout << "end." << endl;
     int c;
