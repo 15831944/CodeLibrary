@@ -20,6 +20,17 @@
 
 using namespace std;
 
+const int SvrAddrCountTime = 5;
+
+char SvrAddrTime[SvrAddrCountTime][20] = {
+    "132.163.4.101", 
+    "64.90.182.55",
+    "96.47.67.105",
+    "165.193.126.229",
+    "129.6.15.28"
+};
+
+
 int TimeProtocol()
 {
     cout << "====time protocol start====" << endl;
@@ -40,32 +51,40 @@ int TimeProtocol()
 	memset(&servAddr,0,sizeof(sockaddr_in));
 	servAddr.sin_family = AF_INET; 
 	servAddr.sin_port = htons(37); 
-	servAddr.sin_addr.S_un.S_addr = inet_addr("198.60.73.8");
-	if (SOCKET_ERROR == connect(s, (sockaddr *)&servAddr, sizeof(servAddr))) 
-	{ 
-		std::cout<<"connect socket error"<<std::endl; 
-		return 0; 
-	} 
-	ULONG ulTime = 0; 
-	int nRecv = recv(s, (char *)&ulTime, sizeof(ulTime), 0); 
-	std::cout<<ulTime<<std::endl;
+	
 
-	ulTime = ntohl(ulTime) - JAN_1970; 
-	closesocket(s); 
+    char *pSvrAddr;
+    int idx;
+    for(idx = 0; idx < SvrAddrCountTime; ++idx){
+        pSvrAddr = SvrAddrTime[idx];
 
-	std::cout<<ulTime<<std::endl;
+        servAddr.sin_addr.S_un.S_addr = inet_addr(pSvrAddr);
+        if (SOCKET_ERROR == connect(s, (sockaddr *)&servAddr, sizeof(servAddr))) 
+	    { 
+		    std::cout<<"connect socket error. idx=" << idx << ", addr=" << pSvrAddr <<std::endl; 
+		    continue; 
+	    }
 
-	cout<<"----------------------"<<endl;
-	time_t timep = ulTime;
-	struct tm *t;
-	t = gmtime(&timep);
-	printf("%04d-%02d-%02d %02d:%02d:%02d\n"
-		, t->tm_year + 1900
-		, t->tm_mon +1
-		, t->tm_mday
-		, t->tm_hour +8
-		, t->tm_min
-		, t->tm_sec);
+	    ULONG ulTime = 0; 
+	    int nRecv = recv(s, (char *)&ulTime, sizeof(ulTime), 0); 
+	    std::cout<<ulTime<<std::endl;
+	    ulTime = ntohl(ulTime) - JAN_1970; 
+	    closesocket(s); 
+
+	    std::cout<<ulTime<<std::endl;
+
+	    cout<<"----------------------"<<endl;
+	    time_t timep = ulTime;
+	    struct tm *t;
+	    t = gmtime(&timep);
+	    printf("%04d-%02d-%02d %02d:%02d:%02d\n"
+		    , t->tm_year + 1900
+		    , t->tm_mon +1
+		    , t->tm_mday
+		    , t->tm_hour +8
+		    , t->tm_min
+		    , t->tm_sec);
+    }
  
     cout << "====time protocol end====" << endl;
 
@@ -74,7 +93,7 @@ int TimeProtocol()
 
 int main()
 {
-    //TimeProtocol();
+    TimeProtocol();
     SntpTimerTest();
 
     cout << "end." << endl;
