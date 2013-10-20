@@ -23,5 +23,8 @@
     <ClInclude Include="SntpTimer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TimeProTimer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

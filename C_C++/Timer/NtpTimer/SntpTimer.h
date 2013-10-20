@@ -1,3 +1,6 @@
+#ifndef SNTPTIMER_H
+#define SNTPTIMER_H
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -112,3 +115,5 @@ int SntpTimerTest()
 	system("pause");
 	return 0;
 }
+
+#endif
