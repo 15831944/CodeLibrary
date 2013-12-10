@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------
-文件名称：UnicodeConverter.h
+文件名称：CodeConverter.h
 
 作者：秦建辉
 
@@ -19,11 +19,25 @@ Unicode内码转换器。用于utf-8、utf-16（UCS2）、utf-32（UCS4）之间的编码转换
 #include <windows.h>
 #include <stdio.h>
 #include <ostream>
+#include <sstream>
 
 using namespace std;
 
-class CUnicodeConverter
-{
+enum CodeType{
+    CT_NONE = 0,
+    CT_ANSI = 1,
+    CT_UTF8 = 2,
+    CT_UTF16_B = 3,
+    CT_UTF16_L = 4
+};
+
+class CCodeConverter
+{           
+public:
+    
+
+    static CodeType GetCodeType(const unsigned char* pFirstLine, const int size);
+
     /* -------------------------------------------------------------
     内码转换
     ------------------------------------------------------------- */

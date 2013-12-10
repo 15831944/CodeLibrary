@@ -1,11 +1,37 @@
-#include "UnicodeConverter.h"
+#include "CodeConverter.h"
+
+
+static unsigned char BOM_UTF16_Little[] = {0xFF, 0xFE};	// Unicode file header
+static unsigned char BOM_UTF16_Big[] = {0xFE, 0xFF};	// Unicode big endian file header
+static unsigned char BOM_UTF8[] = {0xEF, 0xBB, 0xBF};	// UTF_8 file header
+
+CodeType CCodeConverter::GetCodeType(const unsigned char* pFirstLine, const int size){
+    CodeType res;
+    const unsigned char* p = pFirstLine;
+    if(size < 2){
+        res = CT_NONE;
+    }else{
+        if(p[0] == BOM_UTF16_Little[0] && p[1] == BOM_UTF16_Little[1]){
+            res = CT_UTF16_L;
+        }else if(p[0] == BOM_UTF16_Big[0] && p[1] == BOM_UTF16_Big[1]){
+            res = CT_UTF16_B;
+        }else if (size >= 3 && p[0] == BOM_UTF8[0] && p[1] == BOM_UTF8[1] && p[2] == BOM_UTF8[2]){
+            res = CT_UTF8;
+        }else{
+            res = CT_NONE;
+        }
+    }
+
+    return res;
+}
+
 
 /* -------------------------------------------------------------
 内码转换
 ------------------------------------------------------------- */
 
 // 转换UCS4编码到UTF8编码
-INT CUnicodeConverter::UCS4_To_UTF8( DWORD dwUCS4, BYTE* pbUTF8 )
+INT CCodeConverter::UCS4_To_UTF8( DWORD dwUCS4, BYTE* pbUTF8 )
 {
     const BYTE	abPrefix[] = {0, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
     const DWORD adwCodeUp[] = {
@@ -47,7 +73,7 @@ INT CUnicodeConverter::UCS4_To_UTF8( DWORD dwUCS4, BYTE* pbUTF8 )
 }
 
 // 转换UTF8编码到UCS4编码
-INT CUnicodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
+INT CCodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
 {
     INT		i, iLen;
     BYTE	b;
@@ -117,7 +143,7 @@ INT CUnicodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
 }
 
 // 转换UCS4编码到UCS2编码
-INT CUnicodeConverter::UCS4_To_UTF16( DWORD dwUCS4, WORD* pwUTF16 )
+INT CCodeConverter::UCS4_To_UTF16( DWORD dwUCS4, WORD* pwUTF16 )
 {
     if( dwUCS4 <= 0xFFFF )
     {
@@ -145,7 +171,7 @@ INT CUnicodeConverter::UCS4_To_UTF16( DWORD dwUCS4, WORD* pwUTF16 )
 }
 
 // 转换UCS2编码到UCS4编码
-INT CUnicodeConverter::UTF16_To_UCS4( const WORD* pwUTF16, DWORD& dwUCS4 )
+INT CCodeConverter::UTF16_To_UCS4( const WORD* pwUTF16, DWORD& dwUCS4 )
 {
     WORD	w1, w2;
 
@@ -177,7 +203,7 @@ INT CUnicodeConverter::UTF16_To_UCS4( const WORD* pwUTF16, DWORD& dwUCS4 )
 }
 
 // 转换UTF8字符串到UTF16字符串
-INT CUnicodeConverter::UTF8Str_To_UTF16Str( const BYTE* pbszUTF8Str, WORD* pwszUTF16Str )
+INT CCodeConverter::UTF8Str_To_UTF16Str( const BYTE* pbszUTF8Str, WORD* pwszUTF16Str )
 {
     INT		iNum, iLen;
     DWORD	dwUCS4;
@@ -222,7 +248,7 @@ INT CUnicodeConverter::UTF8Str_To_UTF16Str( const BYTE* pbszUTF8Str, WORD* pwszU
 }
 
 // 转换UTF16字符串到UTF8字符串
-INT CUnicodeConverter::UTF16Str_To_UTF8Str( const WORD* pwszUTF16Str, BYTE* pbszUTF8Str )
+INT CCodeConverter::UTF16Str_To_UTF8Str( const WORD* pwszUTF16Str, BYTE* pbszUTF8Str )
 {
     INT		iNum, iLen;
     DWORD	dwUCS4;
@@ -271,7 +297,7 @@ C文件写入操作
 ------------------------------------------------------------- */
 
 // 向文件中输出UTF8编码
-UINT CUnicodeConverter::Print_UTF8_By_UCS4( FILE* out, DWORD dwUCS4 )
+UINT CCodeConverter::Print_UTF8_By_UCS4( FILE* out, DWORD dwUCS4 )
 {
     INT		iLen;
     BYTE	abUTF8[8];
@@ -290,7 +316,7 @@ UINT CUnicodeConverter::Print_UTF8_By_UCS4( FILE* out, DWORD dwUCS4 )
 }
 
 // 向文件中输出UTF16编码
-UINT CUnicodeConverter::Print_UTF16_By_UCS4( FILE* out, DWORD dwUCS4, BOOL isBigEndian )
+UINT CCodeConverter::Print_UTF16_By_UCS4( FILE* out, DWORD dwUCS4, BOOL isBigEndian )
 {
     INT		i, iLen;
     WORD	wCode, awUTF16[2];
@@ -322,7 +348,7 @@ UINT CUnicodeConverter::Print_UTF16_By_UCS4( FILE* out, DWORD dwUCS4, BOOL isBig
 }
 
 // 将UTF16字符串以UTF8编码输出到文件中
-UINT CUnicodeConverter::Print_UTF8Str_By_UTF16Str( FILE* out, const WORD* pwszUTF16Str )
+UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( FILE* out, const WORD* pwszUTF16Str )
 {
     INT		iCount, iLen;
     DWORD	dwUCS4;
@@ -351,7 +377,7 @@ UINT CUnicodeConverter::Print_UTF8Str_By_UTF16Str( FILE* out, const WORD* pwszUT
 }
 
 // 将UTF8字符串以UTF16编码输出到文件中
-UINT CUnicodeConverter::Print_UTF16Str_By_UTF8Str( FILE* out, const BYTE* pbszUTF8Str, BOOL isBigEndian )
+UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( FILE* out, const BYTE* pbszUTF8Str, BOOL isBigEndian )
 {
     INT		iCount, iLen;
     DWORD	dwUCS4;
@@ -380,7 +406,7 @@ UINT CUnicodeConverter::Print_UTF16Str_By_UTF8Str( FILE* out, const BYTE* pbszUT
 }
 
 // 向文件中输出UTF8字节序标记
-UINT CUnicodeConverter::Print_UTF8_BOM( FILE* out )
+UINT CCodeConverter::Print_UTF8_BOM( FILE* out )
 {
     if( out == NULL )
     {
@@ -395,7 +421,7 @@ UINT CUnicodeConverter::Print_UTF8_BOM( FILE* out )
 }
 
 // 向文件中输出UTF16字节序标记
-UINT CUnicodeConverter::Print_UTF16_BOM( FILE* out, BOOL isBigEndian )
+UINT CCodeConverter::Print_UTF16_BOM( FILE* out, BOOL isBigEndian )
 {
     if( out == NULL )
     {
@@ -421,7 +447,7 @@ C++流输出操作
 ------------------------------------------------------------- */
 
 // 向流中输出UTF8编码
-UINT CUnicodeConverter::Print_UTF8_By_UCS4( ostream& os, DWORD dwUCS4 )
+UINT CCodeConverter::Print_UTF8_By_UCS4( ostream& os, DWORD dwUCS4 )
 {
     INT		iLen;
     BYTE	abUTF8[8];
@@ -437,7 +463,7 @@ UINT CUnicodeConverter::Print_UTF8_By_UCS4( ostream& os, DWORD dwUCS4 )
 }
 
 // 向流中输出UTF16编码
-UINT CUnicodeConverter::Print_UTF16_By_UCS4( ostream& os, DWORD dwUCS4, BOOL isBigEndian )
+UINT CCodeConverter::Print_UTF16_By_UCS4( ostream& os, DWORD dwUCS4, BOOL isBigEndian )
 {
     INT		i, iLen;
     WORD	wCode, awUTF16[2];
@@ -466,7 +492,7 @@ UINT CUnicodeConverter::Print_UTF16_By_UCS4( ostream& os, DWORD dwUCS4, BOOL isB
 }
 
 // 将UTF16字符串以UTF8编码输出到流中
-UINT CUnicodeConverter::Print_UTF8Str_By_UTF16Str( ostream& os, const WORD* pwszUTF16Str )
+UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( ostream& os, const WORD* pwszUTF16Str )
 {
     INT		iCount, iLen;
     DWORD	dwUCS4;
@@ -492,7 +518,7 @@ UINT CUnicodeConverter::Print_UTF8Str_By_UTF16Str( ostream& os, const WORD* pwsz
 }
 
 // 将UTF8字符串以UTF16编码输出到流中
-UINT CUnicodeConverter::Print_UTF16Str_By_UTF8Str( ostream& os, const BYTE* pbszUTF8Str, BOOL isBigEndian )
+UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( ostream& os, const BYTE* pbszUTF8Str, BOOL isBigEndian )
 {
     INT		iCount, iLen;
     DWORD	dwUCS4;
@@ -518,7 +544,7 @@ UINT CUnicodeConverter::Print_UTF16Str_By_UTF8Str( ostream& os, const BYTE* pbsz
 }
 
 // 向流中输出UTF8字节序标记
-UINT CUnicodeConverter::Print_UTF8_BOM( ostream& os )
+UINT CCodeConverter::Print_UTF8_BOM( ostream& os )
 {
     if( !os )return 0;
 
@@ -530,7 +556,7 @@ UINT CUnicodeConverter::Print_UTF8_BOM( ostream& os )
 }
 
 // 向流中输出UTF16字节序标记
-UINT CUnicodeConverter::Print_UTF16_BOM( ostream& os, BOOL isBigEndian )
+UINT CCodeConverter::Print_UTF16_BOM( ostream& os, BOOL isBigEndian )
 {
     if( !os )return 0;
 

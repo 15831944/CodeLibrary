@@ -75,10 +75,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\CodeConverterLib\UnicodeConverter.h" />
+    <ClInclude Include="..\CodeConverterLib\CodeConverter.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\CodeConverterLib\UnicodeConverter.cpp" />
+    <ClCompile Include="..\CodeConverterLib\CodeConverter.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
