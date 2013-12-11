@@ -1,18 +1,18 @@
-/* ----------------------------------------------------------
-ÎÄ¼þÃû³Æ£ºCodeConverter.h
+ï»¿/* ----------------------------------------------------------
+æ–‡ä»¶åç§°ï¼šCodeConverter.h
 
-×÷Õß£ºÇØ½¨»Ô
+ä½œè€…ï¼šç§¦å»ºè¾‰
 
-MSN£ºsplashcn@msn.com
+MSNï¼šsplashcn@msn.com
 
-µ±Ç°°æ±¾£ºV1.0
+å½“å‰ç‰ˆæœ¬ï¼šV1.0
 
-ÀúÊ·°æ±¾£º
-V1.0	2010Äê03ÔÂ12ÈÕ
-Íê³ÉÕýÊ½°æ±¾¡£
+åŽ†å²ç‰ˆæœ¬ï¼š
+V1.0	2010å¹´03æœˆ12æ—¥
+å®Œæˆæ­£å¼ç‰ˆæœ¬ã€‚
 
-¹¦ÄÜÃèÊö£º
-UnicodeÄÚÂë×ª»»Æ÷¡£ÓÃÓÚutf-8¡¢utf-16£¨UCS2£©¡¢utf-32£¨UCS4£©Ö®¼äµÄ±àÂë×ª»»
+åŠŸèƒ½æè¿°ï¼š
+Unicodeå†…ç è½¬æ¢å™¨ã€‚ç”¨äºŽutf-8ã€utf-16ï¼ˆUCS2ï¼‰ã€utf-32ï¼ˆUCS4ï¼‰ä¹‹é—´çš„ç¼–ç è½¬æ¢
 ------------------------------------------------------------ */
 #pragma once
 
@@ -20,15 +20,17 @@ UnicodeÄÚÂë×ª»»Æ÷¡£ÓÃÓÚutf-8¡¢utf-16£¨UCS2£©¡¢utf-32£¨UCS4£©Ö®¼äµÄ±àÂë×ª»»
 #include <stdio.h>
 #include <ostream>
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 
 enum CodeType{
     CT_NONE = 0,
     CT_ANSI = 1,
-    CT_UTF8 = 2,
-    CT_UTF16_B = 3,
-    CT_UTF16_L = 4
+    CT_UTF8_BOM = 2,
+    CT_UTF8_NO_BOM = 3,
+    CT_UTF16_B = 4,
+    CT_UTF16_L = 5
 };
 
 class CCodeConverter
@@ -36,169 +38,173 @@ class CCodeConverter
 public:
     
 
-    static CodeType GetCodeType(const unsigned char* pFirstLine, const int size);
+    //èŽ·å–æŒ‡å®šå­—ç¬¦ä¸²çš„ç¼–ç æ ¼å¼
+    static CodeType GetCodeType(const unsigned char* pLine, const int size, const bool isFirstLine);
+
+    //èŽ·å–æŒ‡å®šæ–‡ä»¶çš„ç¼–ç æ ¼å¼
+    static CodeType GetCodeType(ifstream& pFile);
 
     /* -------------------------------------------------------------
-    ÄÚÂë×ª»»
+    å†…ç è½¬æ¢
     ------------------------------------------------------------- */
 public:
     /*
-    ¹¦ÄÜ£º½«UCS4±àÂë×ª»»³ÉUTF8±àÂë
-    ²ÎÊý£º
-    dwUCS4£ºÒª×ª»»µÄUCS4±àÂë
-    pbUTF8£ºÓÃÓÚ´æ´¢×ª»»ºóµÄUTF8±àÂë¡£ÉèÎªNULL£¬¿ÉÒÔ»ñÈ¡³¤¶ÈÐÅÏ¢£¨×Ö½ÚÊý£©
-    ·µ»ØÖµ£º
-    0£ºÎÞÐ§µÄUCS4±àÂë
-    1-6£ºUTF8±àÂëµÄÓÐÐ§³¤¶È
+    åŠŸèƒ½ï¼šå°†UCS4ç¼–ç è½¬æ¢æˆUTF8ç¼–ç 
+    å‚æ•°ï¼š
+    dwUCS4ï¼šè¦è½¬æ¢çš„UCS4ç¼–ç 
+    pbUTF8ï¼šç”¨äºŽå­˜å‚¨è½¬æ¢åŽçš„UTF8ç¼–ç ã€‚è®¾ä¸ºNULLï¼Œå¯ä»¥èŽ·å–é•¿åº¦ä¿¡æ¯ï¼ˆå­—èŠ‚æ•°ï¼‰
+    è¿”å›žå€¼ï¼š
+    0ï¼šæ— æ•ˆçš„UCS4ç¼–ç 
+    1-6ï¼šUTF8ç¼–ç çš„æœ‰æ•ˆé•¿åº¦
     */
     static INT UCS4_To_UTF8( DWORD dwUCS4, BYTE* pbUTF8 );
 
     /*
-    ¹¦ÄÜ£º½«UTF8±àÂë×ª»»³ÉUCS4±àÂë
-    ²ÎÊý£º
-    pbUTF8£ºÒª×ª»»µÄUTF8±àÂë
-    dwUCS4£º´æ´¢×ª»»ºóµÄUCS4±àÂë
-    ·µ»ØÖµ£º
-    0£º²ÎÊý´íÎó»òÎÞÐ§µÄUTF8±àÂë
-    1-6£ºUTF8±àÂëµÄÓÐÐ§³¤¶È
+    åŠŸèƒ½ï¼šå°†UTF8ç¼–ç è½¬æ¢æˆUCS4ç¼–ç 
+    å‚æ•°ï¼š
+    pbUTF8ï¼šè¦è½¬æ¢çš„UTF8ç¼–ç 
+    dwUCS4ï¼šå­˜å‚¨è½¬æ¢åŽçš„UCS4ç¼–ç 
+    è¿”å›žå€¼ï¼š
+    0ï¼šå‚æ•°é”™è¯¯æˆ–æ— æ•ˆçš„UTF8ç¼–ç 
+    1-6ï¼šUTF8ç¼–ç çš„æœ‰æ•ˆé•¿åº¦
     */
     static INT UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 );
 
     /*
-    ¹¦ÄÜ£º½«UCS4±àÂë×ª»»³ÉUTF16±àÂë
-    ²ÎÊý£º
-    dwUCS4£ºÒª×ª»»µÄUCS4±àÂë
-    pwUTF16£ºÓÃÓÚ´æ´¢×ª»»ºóµÄUTF16±àÂë¡£ÉèÎªNULL£¬¿ÉÒÔ»ñÈ¡³¤¶ÈÐÅÏ¢£¨×Ö·ûÊý£©
-    ·µ»ØÖµ£º
-    0£ºÎÞÐ§µÄUCS4±àÂë
-    1£º×ª»»³É1¸öUTF16±àÂë
-    2£º×ª»»³É2¸öUTF16±àÂë
+    åŠŸèƒ½ï¼šå°†UCS4ç¼–ç è½¬æ¢æˆUTF16ç¼–ç 
+    å‚æ•°ï¼š
+    dwUCS4ï¼šè¦è½¬æ¢çš„UCS4ç¼–ç 
+    pwUTF16ï¼šç”¨äºŽå­˜å‚¨è½¬æ¢åŽçš„UTF16ç¼–ç ã€‚è®¾ä¸ºNULLï¼Œå¯ä»¥èŽ·å–é•¿åº¦ä¿¡æ¯ï¼ˆå­—ç¬¦æ•°ï¼‰
+    è¿”å›žå€¼ï¼š
+    0ï¼šæ— æ•ˆçš„UCS4ç¼–ç 
+    1ï¼šè½¬æ¢æˆ1ä¸ªUTF16ç¼–ç 
+    2ï¼šè½¬æ¢æˆ2ä¸ªUTF16ç¼–ç 
     */
     static INT UCS4_To_UTF16( DWORD dwUCS4, WORD* pwUTF16 );
 
     /*
-    ¹¦ÄÜ£º½«UTF16±àÂë×ª»»³ÉUCS4±àÂë
-    ²ÎÊý£º
-    pwUTF16£ºÐèÒª×ª»»µÄUTF16±àÂë
-    dwUCS4£º´æ´¢×ª»»ºóµÄUCS4±àÂë
-    ·µ»ØÖµ£º
-    0£º²ÎÊý´íÎó»òÎÞÐ§µÄUTF16±àÂë
-    1£º1¸öUTF16±àÂë±»×ª»»
-    2£º2¸öUTF16±àÂë±»×ª»»
+    åŠŸèƒ½ï¼šå°†UTF16ç¼–ç è½¬æ¢æˆUCS4ç¼–ç 
+    å‚æ•°ï¼š
+    pwUTF16ï¼šéœ€è¦è½¬æ¢çš„UTF16ç¼–ç 
+    dwUCS4ï¼šå­˜å‚¨è½¬æ¢åŽçš„UCS4ç¼–ç 
+    è¿”å›žå€¼ï¼š
+    0ï¼šå‚æ•°é”™è¯¯æˆ–æ— æ•ˆçš„UTF16ç¼–ç 
+    1ï¼š1ä¸ªUTF16ç¼–ç è¢«è½¬æ¢
+    2ï¼š2ä¸ªUTF16ç¼–ç è¢«è½¬æ¢
     */
     static INT UTF16_To_UCS4( const WORD* pwUTF16, DWORD& dwUCS4 );
 
     /*
-    ¹¦ÄÜ£º½«UTF8×Ö·û´®×ª»»³ÉUTF16×Ö·û´®
-    ²ÎÊý£º
-    pbszUTF8Str£ºÐèÒª×ª»»µÄUTF8×Ö·û´®
-    pwszUTF16Str£º´æ´¢×ª»»ºóµÄUTF16×Ö·û´®¡£ÉèÎªNULL£¬¿ÉÒÔ»ñÈ¡ËùÐè³¤¶ÈÐÅÏ¢£¨×Ö·ûÊý£©
-    ·µ»ØÖµ£º
-    0£º×ª»»Ê§°Ü
-    >0£ºUTF16×Ö·û´®³¤¶È
+    åŠŸèƒ½ï¼šå°†UTF8å­—ç¬¦ä¸²è½¬æ¢æˆUTF16å­—ç¬¦ä¸²
+    å‚æ•°ï¼š
+    pbszUTF8Strï¼šéœ€è¦è½¬æ¢çš„UTF8å­—ç¬¦ä¸²
+    pwszUTF16Strï¼šå­˜å‚¨è½¬æ¢åŽçš„UTF16å­—ç¬¦ä¸²ã€‚è®¾ä¸ºNULLï¼Œå¯ä»¥èŽ·å–æ‰€éœ€é•¿åº¦ä¿¡æ¯ï¼ˆå­—ç¬¦æ•°ï¼‰
+    è¿”å›žå€¼ï¼š
+    0ï¼šè½¬æ¢å¤±è´¥
+    >0ï¼šUTF16å­—ç¬¦ä¸²é•¿åº¦
     */
     static INT UTF8Str_To_UTF16Str( const BYTE* pbszUTF8Str, WORD* pwszUTF16Str );
 
     /*
-    ¹¦ÄÜ£º½«UTF16×Ö·û´®×ª»»³ÉUTF8×Ö·û´®
-    ²ÎÊý£º
-    pwszUTF16Str£ºÐèÒª×ª»»µÄUTF16×Ö·û´®
-    pbszUTF8Str£º´æ´¢×ª»»ºóµÄUTF8×Ö·û´®¡£ÉèÎªNULL£¬¿ÉÒÔ»ñÈ¡ËùÐè³¤¶ÈÐÅÏ¢£¨×Ö½ÚÊý£©
-    ·µ»ØÖµ£º
-    0£º×ª»»Ê§°Ü
-    >0£ºUTF8×Ö·û´®³¤¶È£¨²»°üÀ¨NULL×Ö·û£©
+    åŠŸèƒ½ï¼šå°†UTF16å­—ç¬¦ä¸²è½¬æ¢æˆUTF8å­—ç¬¦ä¸²
+    å‚æ•°ï¼š
+    pwszUTF16Strï¼šéœ€è¦è½¬æ¢çš„UTF16å­—ç¬¦ä¸²
+    pbszUTF8Strï¼šå­˜å‚¨è½¬æ¢åŽçš„UTF8å­—ç¬¦ä¸²ã€‚è®¾ä¸ºNULLï¼Œå¯ä»¥èŽ·å–æ‰€éœ€é•¿åº¦ä¿¡æ¯ï¼ˆå­—èŠ‚æ•°ï¼‰
+    è¿”å›žå€¼ï¼š
+    0ï¼šè½¬æ¢å¤±è´¥
+    >0ï¼šUTF8å­—ç¬¦ä¸²é•¿åº¦ï¼ˆä¸åŒ…æ‹¬NULLå­—ç¬¦ï¼‰
     */
     static INT UTF16Str_To_UTF8Str( const WORD* pwszUTF16Str, BYTE* pbszUTF8Str );
 
     /* -------------------------------------------------------------
-    CÎÄ¼þÐ´Èë²Ù×÷
+    Cæ–‡ä»¶å†™å…¥æ“ä½œ
     ------------------------------------------------------------- */
 public:
     /*
-    ¹¦ÄÜ£ºÏòÎÄ¼þÖÐÐ´ÈëUTF8±àÂë
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æ–‡ä»¶ä¸­å†™å…¥UTF8ç¼–ç 
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF8_By_UCS4( FILE* out, DWORD dwUCS4 );
 
     /*
-    ¹¦ÄÜ£ºÏòÎÄ¼þÖÐÐ´ÈëUTF16±àÂë
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æ–‡ä»¶ä¸­å†™å…¥UTF16ç¼–ç 
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF16_By_UCS4( FILE* out, DWORD dwUCS4, BOOL isBigEndian = FALSE );
 
     /*
-    ¹¦ÄÜ£º½«UTF16×Ö·û´®ÒÔUTF8±àÂëÊä³öµ½ÎÄ¼þÖÐ
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå°†UTF16å­—ç¬¦ä¸²ä»¥UTF8ç¼–ç è¾“å‡ºåˆ°æ–‡ä»¶ä¸­
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF8Str_By_UTF16Str( FILE* out, const WORD* pwszUTF16Str );
 
     /*
-    ¹¦ÄÜ£º½«UTF8×Ö·û´®ÒÔUTF16±àÂëÊä³öµ½ÎÄ¼þÖÐ
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå°†UTF8å­—ç¬¦ä¸²ä»¥UTF16ç¼–ç è¾“å‡ºåˆ°æ–‡ä»¶ä¸­
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF16Str_By_UTF8Str( FILE* out, const BYTE* pbszUTF8Str, BOOL isBigEndian = FALSE );
 
     /*
-    ¹¦ÄÜ£ºÏòÎÄ¼þÖÐÊä³öUTF8±àÂë×Ö½ÚÐò±ê¼Ç
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æ–‡ä»¶ä¸­è¾“å‡ºUTF8ç¼–ç å­—èŠ‚åºæ ‡è®°
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF8_BOM( FILE* out );
 
     /*
-    ¹¦ÄÜ£ºÏòÎÄ¼þÖÐÊä³öUTF16±àÂë×Ö½ÚÐò±ê¼Ç
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æ–‡ä»¶ä¸­è¾“å‡ºUTF16ç¼–ç å­—èŠ‚åºæ ‡è®°
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF16_BOM( FILE* out, BOOL isBigEndian = FALSE );
 
     /* -------------------------------------------------------------
-    C++Á÷Êä³ö²Ù×÷
+    C++æµè¾“å‡ºæ“ä½œ
     ------------------------------------------------------------- */
 public:
     /*
-    ¹¦ÄÜ£ºÏòÁ÷ÖÐÐ´ÈëUTF8±àÂë
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æµä¸­å†™å…¥UTF8ç¼–ç 
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF8_By_UCS4( ostream& os, DWORD dwUCS4 );
 
     /*
-    ¹¦ÄÜ£ºÏòÁ÷ÖÐÐ´ÈëUTF16±àÂë
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æµä¸­å†™å…¥UTF16ç¼–ç 
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF16_By_UCS4( ostream& os, DWORD dwUCS4, BOOL isBigEndian = FALSE );
 
     /*
-    ¹¦ÄÜ£º½«UTF16×Ö·û´®ÒÔUTF8±àÂëÊä³öµ½Á÷ÖÐ
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå°†UTF16å­—ç¬¦ä¸²ä»¥UTF8ç¼–ç è¾“å‡ºåˆ°æµä¸­
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF8Str_By_UTF16Str( ostream& os, const WORD* pwszUTF16Str );
 
     /*
-    ¹¦ÄÜ£º½«UTF8×Ö·û´®ÒÔUTF16±àÂëÊä³öµ½Á÷ÖÐ
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå°†UTF8å­—ç¬¦ä¸²ä»¥UTF16ç¼–ç è¾“å‡ºåˆ°æµä¸­
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF16Str_By_UTF8Str( ostream& os, const BYTE* pbszUTF8Str, BOOL isBigEndian = FALSE );
 
     /*
-    ¹¦ÄÜ£ºÏòÁ÷ÖÐÊä³öUTF8±àÂë×Ö½ÚÐò±ê¼Ç
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æµä¸­è¾“å‡ºUTF8ç¼–ç å­—èŠ‚åºæ ‡è®°
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF8_BOM( ostream& os );
 
     /*
-    ¹¦ÄÜ£ºÏòÁ÷ÖÐÊä³öUTF16±àÂë×Ö½ÚÐò±ê¼Ç
-    ·µ»ØÖµ£º
-    Ð´ÈëµÄ×Ö½ÚÊý
+    åŠŸèƒ½ï¼šå‘æµä¸­è¾“å‡ºUTF16ç¼–ç å­—èŠ‚åºæ ‡è®°
+    è¿”å›žå€¼ï¼š
+    å†™å…¥çš„å­—èŠ‚æ•°
     */
     static UINT Print_UTF16_BOM( ostream& os, BOOL isBigEndian = FALSE );
 };

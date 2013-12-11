@@ -1,24 +1,98 @@
-#include "CodeConverter.h"
+ï»¿#include "CodeConverter.h"
 
 
 static unsigned char BOM_UTF16_Little[] = {0xFF, 0xFE};	// Unicode file header
 static unsigned char BOM_UTF16_Big[] = {0xFE, 0xFF};	// Unicode big endian file header
 static unsigned char BOM_UTF8[] = {0xEF, 0xBB, 0xBF};	// UTF_8 file header
 
-CodeType CCodeConverter::GetCodeType(const unsigned char* pFirstLine, const int size){
-    CodeType res;
+//åˆ¤æ–­pFirstLineæ‰€æŒ‡å­—ç¬¦ä¸²æ˜¯ä¸æ˜¯ä¸ºUTF-8æ— BOMç¼–ç æ ¼å¼
+//   U-00000000 - U-0000007F: 0xxxxxxx 
+//   U-00000080 - U-000007FF: 110xxxxx 10xxxxxx 
+//   U-00000800 - U-0000FFFF: 1110xxxx 10xxxxxx 10xxxxxx
+//   U-00010000 - U-001FFFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx 
+//   U-00200000 - U-03FFFFFF: 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 
+//   U-04000000 - U-7FFFFFFF: 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 
+static int IsUtf8NoBOM(const unsigned char* pFirstLine, const int size)
+{
     const unsigned char* p = pFirstLine;
+    static const unsigned char maskL_1 = 0x80;
+     
+    int mCount = 0;
+    int bCount = 0;
+    int curCount = 0;
+    for(int idx = 0; idx < size; ++idx){
+        p = pFirstLine + idx;
+        const unsigned int val = *p;
+        //0xxxxxxx
+        if((*p & 0x80) == 0x0){
+            bCount = 0;
+        //10xxxxxx
+        }else if((val & 0xC0) == 0x80){
+            if(bCount > 0){
+                curCount--;
+
+                if(curCount == 0){
+                    mCount++;
+                }
+            }
+        //110xxxxx
+        }else if((val & 0xE0) == 0xC0){
+            bCount = 2;
+            curCount = 1;
+        //1110xxxx
+        }else if((val & 0xF0) == 0xE0){
+            bCount = 3;
+            curCount = 2;
+        //11110xxx
+        }else if((val & 0xF8) == 0xF0){
+            bCount = 4;
+            curCount = 3;
+        //111110xx
+        }else if((val & 0xFC) == 0xF8){
+            bCount = 5;
+            curCount = 4;
+        //1111110x
+        }else if((val & 0xFE) == 0xFC){
+            bCount = 6;
+            curCount = 5;
+        }
+    }
+
+    if(mCount > 0){
+        return 0;
+    }else{
+        return 1;
+    }
+}
+
+CodeType CCodeConverter::GetCodeType(const unsigned char* pLine, const int size, const bool isFirstLine){
+    CodeType res;
+    const unsigned char* p = pLine;
     if(size < 2){
         res = CT_NONE;
     }else{
-        if(p[0] == BOM_UTF16_Little[0] && p[1] == BOM_UTF16_Little[1]){
-            res = CT_UTF16_L;
-        }else if(p[0] == BOM_UTF16_Big[0] && p[1] == BOM_UTF16_Big[1]){
-            res = CT_UTF16_B;
-        }else if (size >= 3 && p[0] == BOM_UTF8[0] && p[1] == BOM_UTF8[1] && p[2] == BOM_UTF8[2]){
-            res = CT_UTF8;
+        if(isFirstLine){
+            if(p[0] == BOM_UTF16_Little[0] && p[1] == BOM_UTF16_Little[1]){
+                res = CT_UTF16_L;
+            }else if(p[0] == BOM_UTF16_Big[0] && p[1] == BOM_UTF16_Big[1]){
+                res = CT_UTF16_B;
+            }else if (size >= 3 && p[0] == BOM_UTF8[0] && p[1] == BOM_UTF8[1] && p[2] == BOM_UTF8[2]){
+                res = CT_UTF8_BOM;
+            }else{
+                int iRes = IsUtf8NoBOM(pLine, size);
+                if(0 == iRes){
+                    res = CT_UTF8_NO_BOM;
+                }else{
+                    res = CT_NONE;
+                }
+            }
         }else{
-            res = CT_NONE;
+            int iRes = IsUtf8NoBOM(pLine, size);
+            if(0 == iRes){
+                res = CT_UTF8_NO_BOM;
+            }else{
+                res = CT_NONE;
+            }
         }
     }
 
@@ -26,26 +100,54 @@ CodeType CCodeConverter::GetCodeType(const unsigned char* pFirstLine, const int 
 }
 
 
+//è·å–æŒ‡å®šæ–‡ä»¶çš„ç¼–ç æ ¼å¼
+CodeType CCodeConverter::GetCodeType(ifstream& pFile)
+{
+    const int LINE_LENGTH = 1024 * 5;
+    char strLine[LINE_LENGTH];
+
+    int line = 0;
+    CodeType cType;
+
+    while(!pFile.eof()){
+        pFile.getline(strLine, LINE_LENGTH);
+        line++;
+
+        if(line == 1){
+            cType = CCodeConverter::GetCodeType((unsigned char*)strLine, strlen(strLine), true);
+        }else{
+            cType = CCodeConverter::GetCodeType((unsigned char*)strLine, strlen(strLine), false);
+        }
+
+        if(cType != CT_NONE){
+            break;
+        }
+    }
+
+    return cType;
+}
+
+
 /* -------------------------------------------------------------
-ÄÚÂë×ª»»
+å†…ç è½¬æ¢
 ------------------------------------------------------------- */
 
-// ×ª»»UCS4±àÂëµ½UTF8±àÂë
+// è½¬æ¢UCS4ç¼–ç åˆ°UTF8ç¼–ç 
 INT CCodeConverter::UCS4_To_UTF8( DWORD dwUCS4, BYTE* pbUTF8 )
 {
     const BYTE	abPrefix[] = {0, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC};
     const DWORD adwCodeUp[] = {
-        0x80,			// U+00000000 ¡« U+0000007F
-        0x800,			// U+00000080 ¡« U+000007FF
-        0x10000,		// U+00000800 ¡« U+0000FFFF
-        0x200000,		// U+00010000 ¡« U+001FFFFF
-        0x4000000,		// U+00200000 ¡« U+03FFFFFF
-        0x80000000		// U+04000000 ¡« U+7FFFFFFF
+        0x80,			// U+00000000 ï½ U+0000007F
+        0x800,			// U+00000080 ï½ U+000007FF
+        0x10000,		// U+00000800 ï½ U+0000FFFF
+        0x200000,		// U+00010000 ï½ U+001FFFFF
+        0x4000000,		// U+00200000 ï½ U+03FFFFFF
+        0x80000000		// U+04000000 ï½ U+7FFFFFFF
     };
 
     INT	i, iLen;
 
-    // ¸ù¾İUCS4±àÂë·¶Î§È·¶¨¶ÔÓ¦µÄUTF-8±àÂë×Ö½ÚÊı
+    // æ ¹æ®UCS4ç¼–ç èŒƒå›´ç¡®å®šå¯¹åº”çš„UTF-8ç¼–ç å­—èŠ‚æ•°
     iLen = sizeof(adwCodeUp) / sizeof(DWORD);
     for( i = 0; i < iLen; i++ )
     {
@@ -55,11 +157,11 @@ INT CCodeConverter::UCS4_To_UTF8( DWORD dwUCS4, BYTE* pbUTF8 )
         }
     }
 
-    if( i == iLen )return 0;	// ÎŞĞ§µÄUCS4±àÂë
+    if( i == iLen )return 0;	// æ— æ•ˆçš„UCS4ç¼–ç 
 
-    iLen = i + 1;	// UTF-8±àÂë×Ö½ÚÊı
+    iLen = i + 1;	// UTF-8ç¼–ç å­—èŠ‚æ•°
     if( pbUTF8 != NULL )
-    {	// ×ª»»ÎªUTF-8±àÂë
+    {	// è½¬æ¢ä¸ºUTF-8ç¼–ç 
         for( ; i > 0; i-- )
         {
             pbUTF8[i] = static_cast<BYTE>((dwUCS4 & 0x3F) | 0x80);
@@ -72,14 +174,14 @@ INT CCodeConverter::UCS4_To_UTF8( DWORD dwUCS4, BYTE* pbUTF8 )
     return iLen;
 }
 
-// ×ª»»UTF8±àÂëµ½UCS4±àÂë
+// è½¬æ¢UTF8ç¼–ç åˆ°UCS4ç¼–ç 
 INT CCodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
 {
     INT		i, iLen;
     BYTE	b;
 
     if( pbUTF8 == NULL )
-    {	// ²ÎÊı´íÎó
+    {	// å‚æ•°é”™è¯¯
         return 0;
     }
 
@@ -91,7 +193,7 @@ INT CCodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
     }
 
     if( b < 0xC0 || b > 0xFD )
-    {	// ·Ç·¨UTF8
+    {	// éæ³•UTF8
         return 0; 
     }
 
@@ -125,7 +227,7 @@ INT CCodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
     {
         b = *pbUTF8++;
         if( b < 0x80 || b > 0xBF )
-        {	// ·Ç·¨UTF8
+        {	// éæ³•UTF8
             break;
         }
 
@@ -133,7 +235,7 @@ INT CCodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
     }
 
     if( i < iLen )
-    {	// ·Ç·¨UTF8
+    {	// éæ³•UTF8
         return 0;
     }
     else
@@ -142,7 +244,7 @@ INT CCodeConverter::UTF8_To_UCS4( const BYTE* pbUTF8, DWORD& dwUCS4 )
     }
 }
 
-// ×ª»»UCS4±àÂëµ½UCS2±àÂë
+// è½¬æ¢UCS4ç¼–ç åˆ°UCS2ç¼–ç 
 INT CCodeConverter::UCS4_To_UTF16( DWORD dwUCS4, WORD* pwUTF16 )
 {
     if( dwUCS4 <= 0xFFFF )
@@ -158,8 +260,8 @@ INT CCodeConverter::UCS4_To_UTF16( DWORD dwUCS4, WORD* pwUTF16 )
     {
         if( pwUTF16 != NULL )
         {
-            pwUTF16[0] = static_cast<WORD>( 0xD800 + (dwUCS4 >> 10) - 0x40 );	// ¸ß10Î»
-            pwUTF16[1] = static_cast<WORD>( 0xDC00 + (dwUCS4 & 0x03FF) );		// µÍ10Î»
+            pwUTF16[0] = static_cast<WORD>( 0xD800 + (dwUCS4 >> 10) - 0x40 );	// é«˜10ä½
+            pwUTF16[1] = static_cast<WORD>( 0xDC00 + (dwUCS4 & 0x03FF) );		// ä½10ä½
         }
 
         return 2;
@@ -170,19 +272,19 @@ INT CCodeConverter::UCS4_To_UTF16( DWORD dwUCS4, WORD* pwUTF16 )
     }
 }
 
-// ×ª»»UCS2±àÂëµ½UCS4±àÂë
+// è½¬æ¢UCS2ç¼–ç åˆ°UCS4ç¼–ç 
 INT CCodeConverter::UTF16_To_UCS4( const WORD* pwUTF16, DWORD& dwUCS4 )
 {
     WORD	w1, w2;
 
     if( pwUTF16 == NULL )
-    {	// ²ÎÊı´íÎó
+    {	// å‚æ•°é”™è¯¯
         return 0;
     }
 
     w1 = pwUTF16[0];
     if( w1 >= 0xD800 && w1 <= 0xDFFF )
-    {	// ±àÂëÔÚÌæ´úÇøÓò£¨Surrogate Area£©
+    {	// ç¼–ç åœ¨æ›¿ä»£åŒºåŸŸï¼ˆSurrogate Areaï¼‰
         if( w1 < 0xDC00 )
         {
             w2 = pwUTF16[1];
@@ -193,7 +295,7 @@ INT CCodeConverter::UTF16_To_UCS4( const WORD* pwUTF16, DWORD& dwUCS4 )
             }
         }
 
-        return 0;	// ·Ç·¨UTF16±àÂë	
+        return 0;	// éæ³•UTF16ç¼–ç 	
     }
     else
     {
@@ -202,29 +304,29 @@ INT CCodeConverter::UTF16_To_UCS4( const WORD* pwUTF16, DWORD& dwUCS4 )
     }
 }
 
-// ×ª»»UTF8×Ö·û´®µ½UTF16×Ö·û´®
+// è½¬æ¢UTF8å­—ç¬¦ä¸²åˆ°UTF16å­—ç¬¦ä¸²
 INT CCodeConverter::UTF8Str_To_UTF16Str( const BYTE* pbszUTF8Str, WORD* pwszUTF16Str )
 {
     INT		iNum, iLen;
     DWORD	dwUCS4;
 
     if( pbszUTF8Str == NULL )
-    {	// ²ÎÊı´íÎó
+    {	// å‚æ•°é”™è¯¯
         return 0;
     }
 
-    iNum = 0;	// Í³¼ÆÓĞĞ§×Ö·û¸öÊı
+    iNum = 0;	// ç»Ÿè®¡æœ‰æ•ˆå­—ç¬¦ä¸ªæ•°
     while( *pbszUTF8Str )
-    {	// UTF8±àÂë×ª»»ÎªUCS4±àÂë
+    {	// UTF8ç¼–ç è½¬æ¢ä¸ºUCS4ç¼–ç 
         iLen = UTF8_To_UCS4( pbszUTF8Str, dwUCS4 );
         if( iLen == 0 )
-        {	// ·Ç·¨µÄUTF8±àÂë
+        {	// éæ³•çš„UTF8ç¼–ç 
             return 0;
         }
 
         pbszUTF8Str += iLen;
 
-        // UCS4±àÂë×ª»»ÎªUTF16±àÂë
+        // UCS4ç¼–ç è½¬æ¢ä¸ºUTF16ç¼–ç 
         iLen = UCS4_To_UTF16( dwUCS4, pwszUTF16Str );
         if( iLen == 0 )
         {
@@ -241,35 +343,35 @@ INT CCodeConverter::UTF8Str_To_UTF16Str( const BYTE* pbszUTF8Str, WORD* pwszUTF1
 
     if( pwszUTF16Str != NULL )
     {
-        *pwszUTF16Str = 0;	// Ğ´Èë×Ö·û´®½áÊø±ê¼Ç
+        *pwszUTF16Str = 0;	// å†™å…¥å­—ç¬¦ä¸²ç»“æŸæ ‡è®°
     }
 
     return iNum;
 }
 
-// ×ª»»UTF16×Ö·û´®µ½UTF8×Ö·û´®
+// è½¬æ¢UTF16å­—ç¬¦ä¸²åˆ°UTF8å­—ç¬¦ä¸²
 INT CCodeConverter::UTF16Str_To_UTF8Str( const WORD* pwszUTF16Str, BYTE* pbszUTF8Str )
 {
     INT		iNum, iLen;
     DWORD	dwUCS4;
 
     if( pwszUTF16Str == NULL )
-    {	// ²ÎÊı´íÎó
+    {	// å‚æ•°é”™è¯¯
         return 0;
     }
 
     iNum = 0;
     while( *pwszUTF16Str )
-    {	// UTF16±àÂë×ª»»ÎªUCS4±àÂë
+    {	// UTF16ç¼–ç è½¬æ¢ä¸ºUCS4ç¼–ç 
         iLen = UTF16_To_UCS4( pwszUTF16Str, dwUCS4 );
         if( iLen == 0 )
-        {	// ·Ç·¨µÄUTF16±àÂë
+        {	// éæ³•çš„UTF16ç¼–ç 
             return 0;	
         }
 
         pwszUTF16Str += iLen;
 
-        // UCS4±àÂë×ª»»ÎªUTF8±àÂë
+        // UCS4ç¼–ç è½¬æ¢ä¸ºUTF8ç¼–ç 
         iLen = UCS4_To_UTF8( dwUCS4, pbszUTF8Str );
         if( iLen == 0 )
         {
@@ -286,17 +388,17 @@ INT CCodeConverter::UTF16Str_To_UTF8Str( const WORD* pwszUTF16Str, BYTE* pbszUTF
 
     if( pbszUTF8Str != NULL )
     {
-        *pbszUTF8Str = 0;	// Ğ´Èë×Ö·û´®½áÊø±ê¼Ç
+        *pbszUTF8Str = 0;	// å†™å…¥å­—ç¬¦ä¸²ç»“æŸæ ‡è®°
     }
 
     return iNum;
 }
 
 /* -------------------------------------------------------------
-CÎÄ¼şĞ´Èë²Ù×÷
+Cæ–‡ä»¶å†™å…¥æ“ä½œ
 ------------------------------------------------------------- */
 
-// ÏòÎÄ¼şÖĞÊä³öUTF8±àÂë
+// å‘æ–‡ä»¶ä¸­è¾“å‡ºUTF8ç¼–ç 
 UINT CCodeConverter::Print_UTF8_By_UCS4( FILE* out, DWORD dwUCS4 )
 {
     INT		iLen;
@@ -315,7 +417,7 @@ UINT CCodeConverter::Print_UTF8_By_UCS4( FILE* out, DWORD dwUCS4 )
     return iLen;
 }
 
-// ÏòÎÄ¼şÖĞÊä³öUTF16±àÂë
+// å‘æ–‡ä»¶ä¸­è¾“å‡ºUTF16ç¼–ç 
 UINT CCodeConverter::Print_UTF16_By_UCS4( FILE* out, DWORD dwUCS4, BOOL isBigEndian )
 {
     INT		i, iLen;
@@ -334,20 +436,20 @@ UINT CCodeConverter::Print_UTF16_By_UCS4( FILE* out, DWORD dwUCS4, BOOL isBigEnd
         wCode = awUTF16[i];
         if( isBigEndian )
         {
-            fputc( wCode >> 8, out );	// Êä³ö¸ßÎ»
-            fputc( wCode & 0xFF, out );	// Êä³öµÍÎ»
+            fputc( wCode >> 8, out );	// è¾“å‡ºé«˜ä½
+            fputc( wCode & 0xFF, out );	// è¾“å‡ºä½ä½
         }
         else
         {
-            fputc( wCode & 0xFF, out );	// Êä³öµÍÎ»
-            fputc( wCode >> 8, out );	// Êä³ö¸ßÎ»
+            fputc( wCode & 0xFF, out );	// è¾“å‡ºä½ä½
+            fputc( wCode >> 8, out );	// è¾“å‡ºé«˜ä½
         }
     }
 
     return (iLen << 1);
 }
 
-// ½«UTF16×Ö·û´®ÒÔUTF8±àÂëÊä³öµ½ÎÄ¼şÖĞ
+// å°†UTF16å­—ç¬¦ä¸²ä»¥UTF8ç¼–ç è¾“å‡ºåˆ°æ–‡ä»¶ä¸­
 UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( FILE* out, const WORD* pwszUTF16Str )
 {
     INT		iCount, iLen;
@@ -360,7 +462,7 @@ UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( FILE* out, const WORD* pwszUTF16
 
     iCount = 0;
     while( *pwszUTF16Str )
-    {	// ½«UTF16±àÂë×ª»»³ÉUCS4±àÂë
+    {	// å°†UTF16ç¼–ç è½¬æ¢æˆUCS4ç¼–ç 
         iLen = UTF16_To_UCS4( pwszUTF16Str, dwUCS4 );
         if( iLen == 0 )
         {
@@ -369,14 +471,14 @@ UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( FILE* out, const WORD* pwszUTF16
 
         pwszUTF16Str += iLen;
 
-        // ÏòÎÄ¼şÖĞÊä³öUTF8±àÂë
+        // å‘æ–‡ä»¶ä¸­è¾“å‡ºUTF8ç¼–ç 
         iCount += Print_UTF8_By_UCS4( out, dwUCS4 );
     }
 
-    return iCount;	// Êä³öµÄ×Ö½ÚÊı
+    return iCount;	// è¾“å‡ºçš„å­—èŠ‚æ•°
 }
 
-// ½«UTF8×Ö·û´®ÒÔUTF16±àÂëÊä³öµ½ÎÄ¼şÖĞ
+// å°†UTF8å­—ç¬¦ä¸²ä»¥UTF16ç¼–ç è¾“å‡ºåˆ°æ–‡ä»¶ä¸­
 UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( FILE* out, const BYTE* pbszUTF8Str, BOOL isBigEndian )
 {
     INT		iCount, iLen;
@@ -389,7 +491,7 @@ UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( FILE* out, const BYTE* pbszUTF8S
 
     iCount = 0;
     while( *pbszUTF8Str )
-    {	// ½«UTF16±àÂë×ª»»³ÉUCS4±àÂë
+    {	// å°†UTF16ç¼–ç è½¬æ¢æˆUCS4ç¼–ç 
         iLen = UTF8_To_UCS4( pbszUTF8Str, dwUCS4 );
         if( iLen == 0 )
         {
@@ -398,14 +500,14 @@ UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( FILE* out, const BYTE* pbszUTF8S
 
         pbszUTF8Str += iLen;
 
-        // ÏòÎÄ¼şÖĞÊä³öUTF8±àÂë
+        // å‘æ–‡ä»¶ä¸­è¾“å‡ºUTF8ç¼–ç 
         iCount += Print_UTF16_By_UCS4( out, dwUCS4, isBigEndian );
     }
 
-    return iCount;	// Êä³öµÄ×Ö½ÚÊı
+    return iCount;	// è¾“å‡ºçš„å­—èŠ‚æ•°
 }
 
-// ÏòÎÄ¼şÖĞÊä³öUTF8×Ö½ÚĞò±ê¼Ç
+// å‘æ–‡ä»¶ä¸­è¾“å‡ºUTF8å­—èŠ‚åºæ ‡è®°
 UINT CCodeConverter::Print_UTF8_BOM( FILE* out )
 {
     if( out == NULL )
@@ -420,7 +522,7 @@ UINT CCodeConverter::Print_UTF8_BOM( FILE* out )
     return 3;
 }
 
-// ÏòÎÄ¼şÖĞÊä³öUTF16×Ö½ÚĞò±ê¼Ç
+// å‘æ–‡ä»¶ä¸­è¾“å‡ºUTF16å­—èŠ‚åºæ ‡è®°
 UINT CCodeConverter::Print_UTF16_BOM( FILE* out, BOOL isBigEndian )
 {
     if( out == NULL )
@@ -443,10 +545,10 @@ UINT CCodeConverter::Print_UTF16_BOM( FILE* out, BOOL isBigEndian )
 }
 
 /* -------------------------------------------------------------
-C++Á÷Êä³ö²Ù×÷
+C++æµè¾“å‡ºæ“ä½œ
 ------------------------------------------------------------- */
 
-// ÏòÁ÷ÖĞÊä³öUTF8±àÂë
+// å‘æµä¸­è¾“å‡ºUTF8ç¼–ç 
 UINT CCodeConverter::Print_UTF8_By_UCS4( ostream& os, DWORD dwUCS4 )
 {
     INT		iLen;
@@ -462,7 +564,7 @@ UINT CCodeConverter::Print_UTF8_By_UCS4( ostream& os, DWORD dwUCS4 )
     return iLen;	
 }
 
-// ÏòÁ÷ÖĞÊä³öUTF16±àÂë
+// å‘æµä¸­è¾“å‡ºUTF16ç¼–ç 
 UINT CCodeConverter::Print_UTF16_By_UCS4( ostream& os, DWORD dwUCS4, BOOL isBigEndian )
 {
     INT		i, iLen;
@@ -478,20 +580,20 @@ UINT CCodeConverter::Print_UTF16_By_UCS4( ostream& os, DWORD dwUCS4, BOOL isBigE
         wCode = awUTF16[i];
         if( isBigEndian )
         {
-            os.put( wCode >> 8 );		// Êä³ö¸ßÎ»
-            os.put( wCode & 0xFF );		// Êä³öµÍÎ»
+            os.put( wCode >> 8 );		// è¾“å‡ºé«˜ä½
+            os.put( wCode & 0xFF );		// è¾“å‡ºä½ä½
         }
         else
         {
-            os.put( wCode & 0xFF );		// Êä³öµÍÎ»
-            os.put( wCode >> 8 );		// Êä³ö¸ßÎ»
+            os.put( wCode & 0xFF );		// è¾“å‡ºä½ä½
+            os.put( wCode >> 8 );		// è¾“å‡ºé«˜ä½
         }
     }
 
     return (iLen << 1);
 }
 
-// ½«UTF16×Ö·û´®ÒÔUTF8±àÂëÊä³öµ½Á÷ÖĞ
+// å°†UTF16å­—ç¬¦ä¸²ä»¥UTF8ç¼–ç è¾“å‡ºåˆ°æµä¸­
 UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( ostream& os, const WORD* pwszUTF16Str )
 {
     INT		iCount, iLen;
@@ -501,7 +603,7 @@ UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( ostream& os, const WORD* pwszUTF
 
     iCount = 0;
     while( *pwszUTF16Str )
-    {	// ½«UTF16±àÂë×ª»»³ÉUCS4±àÂë
+    {	// å°†UTF16ç¼–ç è½¬æ¢æˆUCS4ç¼–ç 
         iLen = UTF16_To_UCS4( pwszUTF16Str, dwUCS4 );
         if( iLen == 0 )
         {
@@ -510,14 +612,14 @@ UINT CCodeConverter::Print_UTF8Str_By_UTF16Str( ostream& os, const WORD* pwszUTF
 
         pwszUTF16Str += iLen;
 
-        // ÏòÁ÷ÖĞÊä³öUTF8±àÂë
+        // å‘æµä¸­è¾“å‡ºUTF8ç¼–ç 
         iCount += Print_UTF8_By_UCS4( os, dwUCS4 );
     }
 
-    return iCount;	// Êä³öµÄ×Ö½ÚÊı
+    return iCount;	// è¾“å‡ºçš„å­—èŠ‚æ•°
 }
 
-// ½«UTF8×Ö·û´®ÒÔUTF16±àÂëÊä³öµ½Á÷ÖĞ
+// å°†UTF8å­—ç¬¦ä¸²ä»¥UTF16ç¼–ç è¾“å‡ºåˆ°æµä¸­
 UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( ostream& os, const BYTE* pbszUTF8Str, BOOL isBigEndian )
 {
     INT		iCount, iLen;
@@ -527,7 +629,7 @@ UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( ostream& os, const BYTE* pbszUTF
 
     iCount = 0;
     while( *pbszUTF8Str )
-    {	// ½«UTF16±àÂë×ª»»³ÉUCS4±àÂë
+    {	// å°†UTF16ç¼–ç è½¬æ¢æˆUCS4ç¼–ç 
         iLen = UTF8_To_UCS4( pbszUTF8Str, dwUCS4 );
         if( iLen == 0 )
         {
@@ -536,14 +638,14 @@ UINT CCodeConverter::Print_UTF16Str_By_UTF8Str( ostream& os, const BYTE* pbszUTF
 
         pbszUTF8Str += iLen;
 
-        // ÏòÁ÷ÖĞÊä³öUTF8±àÂë
+        // å‘æµä¸­è¾“å‡ºUTF8ç¼–ç 
         iCount += Print_UTF16_By_UCS4( os, dwUCS4, isBigEndian );
     }
 
-    return iCount;	// Êä³öµÄ×Ö½ÚÊı
+    return iCount;	// è¾“å‡ºçš„å­—èŠ‚æ•°
 }
 
-// ÏòÁ÷ÖĞÊä³öUTF8×Ö½ÚĞò±ê¼Ç
+// å‘æµä¸­è¾“å‡ºUTF8å­—èŠ‚åºæ ‡è®°
 UINT CCodeConverter::Print_UTF8_BOM( ostream& os )
 {
     if( !os )return 0;
@@ -555,7 +657,7 @@ UINT CCodeConverter::Print_UTF8_BOM( ostream& os )
     return 3;	
 }
 
-// ÏòÁ÷ÖĞÊä³öUTF16×Ö½ÚĞò±ê¼Ç
+// å‘æµä¸­è¾“å‡ºUTF16å­—èŠ‚åºæ ‡è®°
 UINT CCodeConverter::Print_UTF16_BOM( ostream& os, BOOL isBigEndian )
 {
     if( !os )return 0;

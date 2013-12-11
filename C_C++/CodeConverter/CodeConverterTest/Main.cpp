@@ -1,4 +1,4 @@
-#include "CodeConverter.h"
+﻿#include "CodeConverter.h"
 #include <Windows.h>
 #include <string>
 #include <iostream>
@@ -21,21 +21,27 @@ void test()
     char strLine[LINE_LENGTH];
 
     int line = 0;
-    CodeType cType;
-    while(!fin.eof()){
-        fin.getline(strLine, LINE_LENGTH);
-        line++;
+    CodeType cType = CCodeConverter::GetCodeType(fin);
+    cout << "CodeType: " << cType << endl;
 
-        if(line == 1){
-            cType = CCodeConverter::GetCodeType((unsigned char*)strLine, strlen(strLine));
-            cout << "CodeType: " << cType << endl;
-        }else{
-
+    fin.seekg(0, ios_base::beg);
+    fin.clear();
+    if(cType != CT_NONE){
+        while(!fin.eof()){
+            fin.getline(strLine, LINE_LENGTH);
+            line++;
+            cout << strLine << endl;
         }
-
-        
-        cout << strLine << endl;
+    }else{
+        while(!fin.eof()){
+            fin.getline(strLine, LINE_LENGTH);
+            line++;
+            cout << strLine << endl;
+        }
+        cout << "unknow code." << endl;
     }
+
+    fin.close();
 }
 
 
