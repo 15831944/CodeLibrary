@@ -12,11 +12,10 @@ static unsigned char BOM_UTF8[] = {0xEF, 0xBB, 0xBF};	// UTF_8 file header
 //   U-00010000 - U-001FFFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx 
 //   U-00200000 - U-03FFFFFF: 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 
 //   U-04000000 - U-7FFFFFFF: 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 
-static int IsUtf8NoBOM(const unsigned char* pFirstLine, const int size)
+static bool IsUtf8NoBOM(const unsigned char* pFirstLine, const int size)
 {
     const unsigned char* p = pFirstLine;
-    static const unsigned char maskL_1 = 0x80;
-     
+
     int mCount = 0;
     int bCount = 0;
     int curCount = 0;
@@ -59,9 +58,32 @@ static int IsUtf8NoBOM(const unsigned char* pFirstLine, const int size)
     }
 
     if(mCount > 0){
-        return 0;
+        return true;
     }else{
-        return 1;
+        return false;
+    }
+}
+
+
+//判断pFirstLine所指字符串是不是为GB18030/GB2321格式
+//单字节: 0到0x7F
+//      0000.0000-0111.1111
+//双字节: 第一个字节的值从0x81到0xFE，第二个字节的值从0x40到0xFE(不包括0x7F)
+//      1000.0001-1111.1110  0100.0000-1111.1110
+//四字节，第一个字节的值从0x81到0xFE，第二个字节的值从0x30到0x39，第三个字节从0x81到0xFE，第四个字节从0x30到0x39
+//      1000.0001-1111.1110  0011.0000-0011.10001  1000.0001-1111.1110  0011.0000-0011.10001
+static int IsGB18030(const unsigned char* pFirstLine, const int size)
+{
+    const unsigned char* p = pFirstLine;
+
+    int preBit = 1;
+    int curBit = 0;
+    int idxBit = 0;
+    for(int idx = 0; idx < size; ++idx){
+        p = pFirstLine + idx;
+        const unsigned int val = *p;
+
+        if(val)
     }
 }
 
@@ -79,16 +101,16 @@ CodeType CCodeConverter::GetCodeType(const unsigned char* pLine, const int size,
             }else if (size >= 3 && p[0] == BOM_UTF8[0] && p[1] == BOM_UTF8[1] && p[2] == BOM_UTF8[2]){
                 res = CT_UTF8_BOM;
             }else{
-                int iRes = IsUtf8NoBOM(pLine, size);
-                if(0 == iRes){
+                bool bRes = IsUtf8NoBOM(pLine, size);
+                if(bRes){
                     res = CT_UTF8_NO_BOM;
                 }else{
                     res = CT_NONE;
                 }
             }
         }else{
-            int iRes = IsUtf8NoBOM(pLine, size);
-            if(0 == iRes){
+            bool bRes = IsUtf8NoBOM(pLine, size);
+            if(bRes){
                 res = CT_UTF8_NO_BOM;
             }else{
                 res = CT_NONE;
