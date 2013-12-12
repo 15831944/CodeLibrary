@@ -6,9 +6,8 @@
 
 using namespace std;
 
-void test()
+void test(string& finNmae)
 {
-    string finNmae = "in.txt";
     ifstream fin;
     fin.open(finNmae.c_str());
 
@@ -65,7 +64,19 @@ int main()
 
     string outFileNmae = "out.txt";*/
 
-    test();
+    string fNmae = "in_utf8.txt";
+    test(fNmae);
+    fNmae = "in_utf8_nobom.txt";
+    test(fNmae);
+    fNmae = "in_utf16l.txt";
+    test(fNmae);
+    fNmae = "in_utf16b.txt";
+    test(fNmae);
+    fNmae = "in_gb2321.txt";
+    test(fNmae);
+    fNmae = "in_gb18030.txt";
+    test(fNmae);
+    
 
     cout << "end." << endl;
     char c;

@@ -78,12 +78,85 @@ static int IsGB18030(const unsigned char* pFirstLine, const int size)
 
     int preBit = 1;
     int curBit = 0;
-    int idxBit = 0;
+    int idxBit = 1;
+
+    int matchCount = 0;
+    int missCount = 0;
+
+    bool isM2 = false; 
+    bool isM4 = false;
     for(int idx = 0; idx < size; ++idx){
         p = pFirstLine + idx;
         const unsigned int val = *p;
 
-        if(val)
+        if(val == 0xFF){
+            missCount++;
+            idxBit = 1;
+            isM2 = false;
+            isM4 = false;
+        }
+
+        if(idxBit == 1){
+            if((val & 0x8F) == 0x0){
+                //matchCount++;
+                isM2 = false;
+                isM4 = false;
+            }else if(val >= 0x81 && val <= 0xFE){
+                idxBit = 2;
+                isM2 = true;
+                isM4 = true;
+            }else{
+                missCount++;
+                idxBit = 1;
+                isM2 = false;
+                isM4 = false;
+            }
+        }else if(idxBit == 2){
+            if((val & 0xC0) != 0x0){
+                matchCount++;
+                idxBit = 1;
+                isM2 = false;
+                isM4 = false;
+            }else if(val >= 0x30 && val <= 0x39){
+                idxBit = 3;
+                isM2 = false;
+                isM4 = true;
+            }else{
+                missCount++;
+                idxBit = 1;
+                isM2 = false;
+                isM4 = false;
+            }
+        }else if(idxBit == 3){
+            if(val >= 0x81 && val <= 0xFE){
+                idxBit = 4;
+                isM2 = true;
+                isM4 = true;
+            }else{
+                missCount++;
+                idxBit = 1;
+                isM2 = false;
+                isM4 = false;
+            }
+        }else if(idxBit == 4){
+            if(val >= 0x30 && val <= 0x39){
+                matchCount++;
+                idxBit = 3;
+                isM2 = false;
+                isM4 = true;
+            }else{
+                missCount++;
+                idxBit = 1;
+                isM2 = false;
+                isM4 = false;
+            }
+        }
+    }
+
+    if(matchCount > 0 && missCount == 0){
+        return true;
+    }else{
+        return false;
     }
 }
 
@@ -104,6 +177,8 @@ CodeType CCodeConverter::GetCodeType(const unsigned char* pLine, const int size,
                 bool bRes = IsUtf8NoBOM(pLine, size);
                 if(bRes){
                     res = CT_UTF8_NO_BOM;
+                }else if(bRes = IsGB18030(pLine, size)){
+                    res = CT_GB18030;
                 }else{
                     res = CT_NONE;
                 }
@@ -112,6 +187,8 @@ CodeType CCodeConverter::GetCodeType(const unsigned char* pLine, const int size,
             bool bRes = IsUtf8NoBOM(pLine, size);
             if(bRes){
                 res = CT_UTF8_NO_BOM;
+            }else if(bRes = IsGB18030(pLine, size)){
+                res = CT_GB18030;
             }else{
                 res = CT_NONE;
             }

@@ -30,7 +30,8 @@ enum CodeType{
     CT_UTF8_BOM = 2,
     CT_UTF8_NO_BOM = 3,
     CT_UTF16_B = 4,
-    CT_UTF16_L = 5
+    CT_UTF16_L = 5,
+    CT_GB18030 = 6
 };
 
 class CCodeConverter
