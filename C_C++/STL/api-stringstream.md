@@ -1,13 +1,13 @@
 #api-stringstream
 
-å¤´æ–‡ä»¶:<sstream>  
-å®šä¹‰:typedef basic_stringstream<char> stringstream;  
-ç»¼è¿°:
-stringstreamæ˜¯ä¸€ä¸ªè¾“å…¥/è¾“å‡ºå­—ç¬¦ä¸²æ•°æ®æµç»§æ‰¿è‡ªiostreamï¼›  
-stringstreamå¯¹è±¡ä½¿ç”¨ä¸€ä¸ªstring bufferæ¥ä¿å­˜å­—ç¬¦åºåˆ—,è¿™ä¸ªåºåˆ—å¯ä»¥é€šè¿‡str()æ–¹æ³•ç›´æ¥è®¿é—®,æ­¤æ–¹æ³•è¿”å›ä¸€ä¸ªstringå¯¹è±¡ï¼›  
+Í·ÎÄ¼ş:<sstream>  
+¶¨Òå:typedef basic_stringstream<char> stringstream;  
+×ÛÊö:
+stringstreamÊÇÒ»¸öÊäÈë/Êä³ö×Ö·û´®Êı¾İÁ÷¼Ì³Ğ×Ôiostream£»  
+stringstream¶ÔÏóÊ¹ÓÃÒ»¸östring bufferÀ´±£´æ×Ö·ûĞòÁĞ,Õâ¸öĞòÁĞ¿ÉÒÔÍ¨¹ıstr()·½·¨Ö±½Ó·ÃÎÊ,´Ë·½·¨·µ»ØÒ»¸östring¶ÔÏó£»  
     
-##æˆå‘˜
-é™¤äº†string buffer,æ­¤ç±»çš„å¯¹è±¡è¿˜æœ‰ç»§æ‰¿è‡ªios_base,ioså’Œistreamçš„æˆå‘˜;  
+##³ÉÔ±
+³ıÁËstring buffer,´ËÀàµÄ¶ÔÏó»¹ÓĞ¼Ì³Ğ×Ôios_base,iosºÍistreamµÄ³ÉÔ±;  
 >   flags,setf,unsetf 
 >   width
 >   precision
@@ -21,7 +21,7 @@ stringstreamå¯¹è±¡ä½¿ç”¨ä¸€ä¸ªstring bufferæ¥ä¿å­˜å­—ç¬¦åºåˆ—,è¿™ä¸ªåºåˆ—å¯
 >   rdbuf
 >   gcount
 
-##æˆå‘˜ç±»å‹
+##³ÉÔ±ÀàĞÍ
 >   char_type   char
 >   traits_type char_traits<char>
 >   allocator_type  allocator<char>
@@ -29,36 +29,25 @@ stringstreamå¯¹è±¡ä½¿ç”¨ä¸€ä¸ªstring bufferæ¥ä¿å­˜å­—ç¬¦åºåˆ—,è¿™ä¸ªåºåˆ—å¯
 >   pos_type    streampos
 >   off_type    streamoff
 
-##æˆå‘˜å‡½æ•°(public)
+##³ÉÔ±º¯Êı(public)
 (*constructor*):  
 >   [1] explicit stringstream (ios_base::openmode which = ios_base::in | ios_base::out);  (C++98/C++11)  
 >   [2] explicit stringstream (const string& str, ios_base::openmode which = ios_base::in | ios_base::out);  (C++98/C++11)  
 
-*str*:  
+*std::stringstream::str*:  
 >   [1] string str() const;  
 >   [2] void str (const string& s);  
->   å‡½æ•°[1]è¿”å›sstreamå¯¹è±¡ä¸­å½“å‰å†…å®¹çš„å‰¯æœ¬;  
->   å‡½æ•°[2]å°†å‚æ•°sè®¾ç½®ä¸ºå½“å‰å¯¹è±¡ä¸­çš„å†…å®¹,æŠ›å¼ƒä¹‹å‰æ‰€æœ‰çš„å†…å®¹;  
->   å®é™…ä¸Š,æ­¤æ–‡ä»¶æ˜¯è°ƒç”¨å†…éƒ¨çš„string bufferçš„str()å‡½æ•°;
+>   º¯Êı[1]·µ»Øsstream¶ÔÏóÖĞµ±Ç°ÄÚÈİµÄ¸±±¾;  
+>   º¯Êı[2]½«²ÎÊısÉèÖÃÎªµ±Ç°¶ÔÏóÖĞµÄÄÚÈİ,Å×ÆúÖ®Ç°ËùÓĞµÄÄÚÈİ;  
+>   Êµ¼ÊÉÏ,´ËÎÄ¼şÊÇµ÷ÓÃÄÚ²¿µÄstring bufferµÄstr()º¯Êı;
     
-*operator>>*:
->   å¯¹äºè¾“å…¥æµè€Œè¨€,å®ƒå°±æ˜¯ä¸€ä¸ªæ•°æ®æå–æ“ä½œ;  
->   å®ƒä½¿ç”¨äº†å¤šç§ç±»å‹è¿›è¡Œé‡è½½:arithmetic types \stream buffers \manipulators  
+*std::istream::operator>>*:  
+*std::istream::gcount*:  
+*std::istream::get*:  
+*std::istream::getline*:  
+*std::istream::ignore*:  
+*std::istream::peek*:  
+*std::istream::read*:  
 
-*gcount*:
->   streamsize gcount() const;  
->   è¿”å›æœ€è¿‘ä¸€æ¬¡çš„unformatted input operations(æ— æ ¼å¼è¾“å…¥æ“ä½œ)è·å–çš„å­—ç¬¦æ•°.  
->   unformatted input operationsåŒ…æ‹¬:get, getline, ignore, peek, read, readsome, putback å’Œ unget.  
-
-*get*:
->   [1] int get();  
->   [2] istream& get (char& c);  
->   [3] istream& get (char* s, streamsize n);  
->   [4] istream& get (char* s, streamsize n, char delim);  
->   [5] istream& get (streambuf& sb);  
->   [6] istream& get (streambuf& sb, char delim);  
->   ä»æµä¸­è·å–å­—ç¬¦,å¹¶åšä¸ºæ— æ ¼å¼çš„è¾“å…¥;  
-
-
-##å…¶å®ƒ
-    stringstreamä¸æ˜¯çº¿ç¨‹å®‰å…¨çš„,å¹¶å‘çš„è®¿é—®ä¼šå¼•å‘æ•°æ®ç«äº‰.  
+##ÆäËü
+    stringstream²»ÊÇÏß³Ì°²È«µÄ,²¢·¢µÄ·ÃÎÊ»áÒı·¢Êı¾İ¾ºÕù.  
