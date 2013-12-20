@@ -11,4 +11,36 @@ signal.h是C标准函数库中的信号处理部分,定义了程序执行时如�
 **signal**:  
 >   void (*signal(int sig, void (*func)(int)))(int);  
 >   设置处理sig标志的信号的处理函数.  
->   
+>   说明:signal()函数它带两个参数,一个为整形sig,一个为函数指针func,而这个signal()函数的返回值也是一个函数指针,这个函数指针指向一个带一个整形参数,并且返回值为void的函数.  
+>   参数func可以指定下面三种方式来处理信号:  
+
+>   * 默认处理(SIG_DFL);  
+>   * 忽略信号(SIG_IGN);  
+>   * 函数处理;  
+
+>   在程序启动时,SIG_DFL或SIG_IGN被设置为默认的处理方式;  
+>   如果成功,函数返回值为之前的处理句柄.如果失败,则返回SIG_ERR并且设置errno.  
+>   在线程中调用此函数,会引发未定义的操作.  
+
+**raise**:  
+>   int raise (int sig);  
+>   将信号发送给当前程序.  
+>   若成功,返回0.   
+>   多线程中调用此函数是安全的.  
+>   发出线程之后,处理程序会在同一线程中执行,处理完成之后,raise()函数返回.  
+
+
+##定义的信号
+C语言标准定义了6个信号.都定义在signal.h头文件中.  
+
+*   SIGABRT   异常终止.比如由abort()函数引发的.  
+*   SIGFPE    浮点异常.比如0除.  
+*   SIGILL    无效指令.  
+*   SIGINT    交互的用户按键请求.默认情况下,这会导致进程终止.  
+*   SIGSEGV   无效内存访问.  
+*   SIGTERM   程序的中止请求.   
+
+
+##参考
+*   <http://www.cplusplus.com/reference/csignal/>
+*   <https://zh.wikipedia.org/wiki/Signal.h>
