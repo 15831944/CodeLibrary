@@ -48,4 +48,68 @@ string.h是C语言中C标准库的头文件,其中包含了宏定义、常量以
 
 **strcoll**:比较两个字符串.  
 >   int strcoll ( const char * str1, const char * str2 );  
->   
+>   根据LC_COLLATE比较字符串.在比较出大小或遇到'\0'时结束.  
+
+**strncmp**:比较两个字符串.  
+>   int strncmp ( const char * str1, const char * str2, size_t num );  
+>   比较两个字符串,最多比较num个字符.  
+
+**strxfrm**:转换字符串.  
+>   size_t strxfrm ( char * destination, const char * source, size_t num );  
+>   使用locale转换字符串,并将前num个字符复制到destination中.  
+>   返回转换之后的字符串长度.  
+>   destination和source不能重叠.  
+
+**memchr**:查找字符.  
+>   void * memchr (       void * ptr, int value, size_t num );  
+>   在前num个字节中查找value的值,value被解释为unsigned char.  
+>   返回找到的字符的地址.  
+
+**strchr**:查找字符.  
+>   char * strchr (       char * str, int character );  
+>   返回找到的字符地址,若没找到,返回null.  
+
+**strcspn**:获取在指定字符串中的字符的索引.  
+>   size_t strcspn ( const char * str1, const char * str2 );  
+>   在str1中查找,任何一个str2中的字符,返回其索引.  
+
+**strpbrk**:获取在指定字符串中的字符的地址.  
+>   char * strpbrk (       char * str1, const char * str2 );  
+>   在str1中查找,任何一个str2中的字符,返回其地址.  
+
+**strrchr**:从字符串中返回最后出现的字符.  
+>   char * strrchr (       char * str, int character );  
+>   返回str中,character最后出现的字符地址.  
+
+**strspn**:返回字符串的范围.  
+>   size_t strspn ( const char * str1, const char * str2 );  
+>   返回str1中字符,连续是str2中的长度.  
+
+**strstr**:返回子字符串的位置.  
+>   char * strstr (       char * str1, const char * str2 );  
+>   返回str1中,str2字符串第一次出现的位置,不包括'\0'.  
+
+**strtok**:分隔字符串,并存入tokens中.  
+>   char * strtok ( char * str, const char * delimiters );  
+>   此函数一系列的调用,将str用delimiters中任意的一个字符分隔,并在每次调用时依次返回,除第一次调用外,传入str,之后都传入NULL,若没有字符串可供返回,返回NULL.  
+
+其它  
+**memset**:填充内存.  
+>   void * memset ( void * ptr, int value, size_t num );  
+>   将ptr的前num字符用value(解释为unsigned char)填充.  
+
+**strerror**:返回错误字符串.  
+>   char * strerror ( int errnum );  
+>   返回的字符串为静态分配的.  
+
+**strlen**:返回字符串长度.  
+>   size_t strlen ( const char * str );  
+>   通过'\0'标志字符串,不包括'\0'.  
+
+宏  
+**NULL**:  
+
+类型  
+**size_t**;  
+
+
