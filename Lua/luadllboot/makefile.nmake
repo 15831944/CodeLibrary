@@ -1,0 +1,22 @@
+CFLAGS=/DWIN32 /I. /I"$(LUA_DEV)/include"
+
+LIBFLAGS=/nologo
+
+CORE_OBJS=boot1.obj boot2.obj dllbootlib.obj dllmain.obj
+
+all: tooldll clean
+
+boot1.obj: boot1.h boot1.cpp
+    cl /c boot1.cpp
+boot2.obj: boot2.h boot2.cpp
+    cl /c boot2.cpp
+dllbootlib.obj: dllbootlib.cpp
+    cl $(CFLAGS) dllbootlib.cpp /c 
+dllmain.obj: dllmain.cpp
+    cl /c dllmain.cpp
+
+tooldll: $(CORE_OBJS)
+    link $(LIBFLAGS) $(CORE_OBJS) /DLL "lua5.1.lib" /LIBPATH:"$(LUA_DEV)/lib" /out:dllboot.dll
+
+clean:
+    del $(CORE_OBJS)

@@ -1,0 +1,38 @@
+﻿生成启动时间为 2014/1/21 17:42:02。
+     1>项目“E:\Workstation\CodeLibrary\Lua\luatools\luatools\luatools.vcxproj”在节点 2 上(rebuild 个目标)。
+     1>_PrepareForClean:
+         正在删除文件“Debug\luatools.lastbuildstate”。
+       InitializeBuildStatus:
+         正在创建“Debug\luatools.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         d:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"e:\Program Files (x86)\Lua\5.1\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D LUATOOLS_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt luatools.cpp timer.cpp tools.cpp
+         tools.cpp
+         timer.cpp
+         luatools.cpp
+         正在生成代码...
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\luatools.dll.embed.manifest.res" Debug\luatools_manifest.rc 
+       Link:
+         d:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.dll" /INCREMENTAL /NOLOGO /LIBPATH:"e:\Program Files (x86)\Lua\5.1\lib" lua5.1.lib /MANIFEST /ManifestFile:"Debug\luatools.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.lib" /MACHINE:X86 /DLL Debug\luatools.dll.embed.manifest.res
+         Debug\luatools.obj
+         Debug\timer.obj
+         Debug\tools.obj
+            正在创建库 E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.lib 和对象 E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.exp
+       Manifest:
+         正在删除文件“Debug\luatools.dll.embed.manifest”。
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\luatools.dll.embed.manifest" /manifest Debug\luatools.dll.intermediate.manifest
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\luatools.dll.embed.manifest.res" Debug\luatools_manifest.rc 
+       LinkEmbedManifest:
+         d:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.dll" /INCREMENTAL /NOLOGO /LIBPATH:"e:\Program Files (x86)\Lua\5.1\lib" lua5.1.lib /MANIFEST /ManifestFile:"Debug\luatools.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.lib" /MACHINE:X86 /DLL Debug\luatools.dll.embed.manifest.res
+         Debug\luatools.obj
+         Debug\timer.obj
+         Debug\tools.obj
+         luatools.vcxproj -> E:\Workstation\CodeLibrary\Lua\luatools\Debug\luatools.dll
+       FinalizeBuildStatus:
+         正在删除文件“Debug\luatools.unsuccessfulbuild”。
+         正在对“Debug\luatools.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“E:\Workstation\CodeLibrary\Lua\luatools\luatools\luatools.vcxproj”(rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:07.53
