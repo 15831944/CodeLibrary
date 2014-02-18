@@ -14,7 +14,10 @@ public:
 
     void Lock(){EnterCriticalSection(&cri);};
     void Unlock(){LeaveCriticalSection(&cri);};
-    void DoAction(){++count;};
+    void DoAction(){
+        int i = 300;
+        while(i--)++count;
+    };
     int GetCount(){return count;};
 private:
     int count;

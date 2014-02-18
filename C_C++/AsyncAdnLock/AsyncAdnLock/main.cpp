@@ -6,43 +6,97 @@
 
 using namespace std;
 
+const int ThreadCount = 50;
 const int TestActionLoopCount = 10000;
+
+double TimerLock[ThreadCount];
+double TimerNoLock[ThreadCount];
+
+struct ThreadParam{
+    LockTester* tester;
+    int index;
+};
 
 unsigned int __stdcall DoAction(void *pPM)
 {
     double timeBeg = GetCurrentTimerFlag();
-    LockItem* item = static_cast<LockItem*>(pPM);
+    ThreadParam* param = static_cast<ThreadParam*>(pPM);
+    int index = param->index;
+    LockTester* tester = param->tester;
     for(int idx = 0; idx != TestActionLoopCount; ++idx){
-        item->Lock();
-        item->DoAction();
-        item->Unlock();
+        tester->DoAction(index);
     }
     double timeEnd = GetCurrentTimerFlag();
-    cout << "count: " << item->GetCount() << ",diff=" << (timeEnd - timeBeg) 
-            << ",pre=" << (timeEnd - timeBeg) / TestActionLoopCount << endl;
+    TimerLock[index] = timeEnd - timeBeg;
+    return 0;
+}
+
+unsigned int __stdcall DoAction_NoLock(void *pPM)
+{
+    double timeBeg = GetCurrentTimerFlag();
+    ThreadParam* param = static_cast<ThreadParam*>(pPM);
+    int index = param->index;
+    LockTester* tester = param->tester;
+    for(int idx = 0; idx != TestActionLoopCount; ++idx){
+        tester->Lock();
+        tester->DoAction_NoLock(index);
+        tester->Unlock();
+    }
+    double timeEnd = GetCurrentTimerFlag();
+    TimerNoLock[index] = timeEnd - timeBeg;
     return 0;
 }
 
 int main()
 {
     InitTimer();
-
-
-    const int ThreadCount = 20;
     LockTester tester;
     tester.Init(ThreadCount);
+    HANDLE handle[ThreadCount];
 
     cout << "begin create thread" << endl;
     double timeBeg = GetCurrentTimerFlag();
-    HANDLE handle[ThreadCount];
     for(int idx = 0; idx != ThreadCount; ++idx){
-        handle[idx] = (HANDLE)_beginthreadex(NULL, 0, DoAction, tester.GetItem(idx), 0, NULL);
+        ThreadParam* parm = new ThreadParam();
+        parm->index = idx;
+        parm->tester = &tester;
+        handle[idx] = (HANDLE)_beginthreadex(NULL, 0, DoAction, parm, 0, NULL);
     }
+    WaitForMultipleObjects(ThreadCount, handle, TRUE, INFINITE);
     double timeEnd = GetCurrentTimerFlag();
     cout.precision(10);
     cout << "wati for thread. timeBeg=" << timeBeg << ",timeEnd=" << timeEnd << ",diff=" << (timeEnd - timeBeg) << endl;
+    
+    double all = 0;
+    double pre = 0;
+    for(int idx = 0; idx != ThreadCount; ++idx){
+        CloseHandle(handle[idx]);
+        all += TimerLock[idx];
+    }
+    pre = all/(ThreadCount * TestActionLoopCount);
+    cout << "lock, all=" << all << ",pre=" << pre << endl;
+
+    cout << "begin create thread no lock" << endl;
+    timeBeg = GetCurrentTimerFlag();
+    for(int idx = 0; idx != ThreadCount; ++idx){
+        ThreadParam* parm = new ThreadParam();
+        parm->index = idx;
+        parm->tester = &tester;
+        handle[idx] = (HANDLE)_beginthreadex(NULL, 0, DoAction_NoLock, parm, 0, NULL);
+    }
     WaitForMultipleObjects(ThreadCount, handle, TRUE, INFINITE);
-    cout << "end" << endl;
+    timeEnd = GetCurrentTimerFlag();
+    cout << "wati for thread. timeBeg=" << timeBeg << ",timeEnd=" << timeEnd << ",diff=" << (timeEnd - timeBeg) << endl;
+    
+    double allNo = 0;
+    double preNo = 0;
+    for(int idx = 0; idx != ThreadCount; ++idx){
+        CloseHandle(handle[idx]);
+        allNo += TimerNoLock[idx];
+    }
+    preNo = allNo/(ThreadCount * TestActionLoopCount);
+    cout << "no lock, allNo=" << allNo << ",preNo=" << preNo << endl;
+    cout << "no lock : lock = " << allNo / all << endl;
 
     char c;
     cout << "exit." << endl;
