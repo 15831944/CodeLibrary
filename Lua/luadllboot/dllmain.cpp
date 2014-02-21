@@ -3,9 +3,6 @@
 #if defined(_WINDOWS) || defined(WIN32) || defined(_WIN32)
 #include <windows.h>
 
-#include "boot2.h"
-#include "boot1.h"
-
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved
