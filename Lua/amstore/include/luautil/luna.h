@@ -16,6 +16,10 @@ using namespace std;
 #define _snprintf snprintf
 #endif
 
+//模板Lunar的参数T的约定：
+//  有static const char className[]成员
+//  有static Lunar<LuaObjDemo>::RegType methods[]成员
+//  有static LuaObjDemo* Create(lua_State* L)成员
 template <typename T> class Lunar {
     typedef struct { T *pT; } userdataType;
 public:
@@ -80,8 +84,14 @@ public:
         set(L, methods, "new");         // add new_T to method table
 
         //methods,metatable,mt,new_T
-        //设置methods.__call = new_T
+        //设置metatable.__call = new_T，让脚本可能直接通过classname()来实现classname:new()的功能
+        cout << "Register top __call=" << lua_gettop(L) << endl;
         set(L, -3, "__call");           // mt.__call = new_T
+
+        //创建create方法，使其行为不同于new，相当于一个工场方法
+        lua_pushcfunction(L, create_T);
+        //设置metatable.create = create_T
+        set(L, methods, "create");
 
         //methods,metatable,mt
         //设置methods的metatable为mt
@@ -92,8 +102,17 @@ public:
         //将T::methods设置到methods上
         for (RegType *l = T::methods; l->name; l++) {
             lua_pushstring(L, l->name);
+            //methods,metatable,l->name
+            cout << "Register top 5=" << lua_gettop(L) << endl;
+            //将l做为lightuserdata压入栈，以做为函数的upvalue
             lua_pushlightuserdata(L, (void*)l);
+            //methods,metatable,l->name,l
+            cout << "Register top 5.1=" << lua_gettop(L) << endl;
+            //将l做为函数thunk的upvalue，并将thunk入栈
             lua_pushcclosure(L, thunk, 1);
+            cout << "Register top 5.2=" << lua_gettop(L) << endl;
+
+            //将在methods上将l->name与thunk函数关联，l的信息做为thunk函数的upvalue
             lua_settable(L, methods);
         }
 
@@ -150,10 +169,12 @@ public:
 
     // get userdata from Lua stack and return pointer to T object
     static T *check(lua_State *L, int narg) {
+        cout << "check top 1=" << lua_gettop(L) << endl;
         if(lua_isnil(L, narg))
             return NULL;
         userdataType *ud =
             static_cast<userdataType*>(luaL_checkudata(L, narg, T::className));
+        cout << "check top 2=" << lua_gettop(L) << endl;
         //if(!ud) luaL_typerror(L, narg, T::className);
         if(!ud) return NULL;
         return ud->pT;  // pointer to T object
@@ -162,13 +183,17 @@ public:
 private:
     Lunar();  // hide default constructor
 
+    //所有的成员函数调用都是通过此函数来处理，再通过upvalue来确定调用的函数
     // member function dispatcher
     static int thunk(lua_State *L) {
         // stack has userdata, followed by method args
+        cout << "thunk top 1=" << lua_gettop(L) << endl;
         T *obj = check(L, 1);  // get 'self', or if you prefer, 'this'
+        cout << "thunk top 2=" << lua_gettop(L) << endl;
         lua_remove(L, 1);  // remove self so member function args start at index 1
         // get member function from upvalue
         RegType *l = static_cast<RegType*>(lua_touserdata(L, lua_upvalueindex(1)));
+        cout << "thunk top 3=" << lua_gettop(L) << ",l=" << l << endl;
         return (obj->*(l->mfunc))(L);  // call member function
     }
 
@@ -180,6 +205,15 @@ private:
         cout << "new_T top 1=" << lua_gettop(L) << endl;
         push(L, obj, true); // gc_T will delete this object
         cout << "new_T top 2=" << lua_gettop(L) << endl;
+        return 1;           // userdata containing pointer to T object
+    }
+
+    static int create_T(lua_State *L) {
+        lua_remove(L, 1);   // use classname:new(), instead of classname.new()
+        T *obj = T::Create(L);      //调用Create工场方法创建或获取对象
+        cout << "create_T top 1=" << lua_gettop(L) << endl;
+        push(L, obj, true); // gc_T will delete this object
+        cout << "create_T top 2=" << lua_gettop(L) << endl;
         return 1;           // userdata containing pointer to T object
     }
 

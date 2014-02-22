@@ -15,8 +15,8 @@ class LuaObjDemo
 public:
     static const char className[];
     typedef Lunar<LuaObjDemo>::RegType RegType;
-    static Lunar<LuaObjDemo>::RegType methods[];
-    MakeFuncProxy();
+    static RegType methods[];
+    //MakeFuncProxy();
 public:
     LuaObjDemo(): counter(0){
         cout << "LuaObjDemo construct" << endl;
@@ -26,6 +26,10 @@ public:
     }
     virtual ~LuaObjDemo(){
         cout << "LuaObjDemo destruct" << endl;
+    }
+    static LuaObjDemo* Create(lua_State* L){
+        cout << "LuaObjDemo::Create" << endl;
+        return new LuaObjDemo(L);
     }
 
     int get_count(lua_State* L){

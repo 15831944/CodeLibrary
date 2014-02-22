@@ -50,7 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;AMSTORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(LUA_DEV)\include;$(SolutionDir)include;$(SolutionDir)include\oci;../glog/windows</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(LUA_DEV)\include;$(SolutionDir)include;$(SolutionDir)include\oci;$(SolutionDir)include/glog/windows</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -77,15 +77,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\sys\sync.cpp" />
     <ClCompile Include="amstorelib.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="loger.cpp" />
     <ClCompile Include="luaobject.cpp" />
+    <ClCompile Include="unitdata.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\luautil\luautil.h" />
     <ClInclude Include="..\include\luautil\luna.h" />
+    <ClInclude Include="..\include\sys\sync.h" />
+    <ClInclude Include="..\include\sys\sysdef.h" />
+    <ClInclude Include="..\include\sys\tchar.h" />
     <ClInclude Include="..\include\sys\typedef.h" />
+    <ClInclude Include="..\include\sys\types.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="loger.h" />
     <ClInclude Include="luaobject.h" />
+    <ClInclude Include="unitdata.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

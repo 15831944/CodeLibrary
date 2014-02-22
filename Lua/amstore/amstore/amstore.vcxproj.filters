@@ -33,6 +33,15 @@
     <ClCompile Include="amstorelib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="unitdata.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="loger.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\sys\sync.cpp">
+      <Filter>include\sys</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="luaobject.h">
@@ -45,6 +54,27 @@
       <Filter>include\luautil</Filter>
     </ClInclude>
     <ClInclude Include="..\include\sys\typedef.h">
+      <Filter>include\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="unitdata.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="loger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\sync.h">
+      <Filter>include\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\sysdef.h">
+      <Filter>include\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\tchar.h">
+      <Filter>include\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\types.h">
       <Filter>include\sys</Filter>
     </ClInclude>
   </ItemGroup>
