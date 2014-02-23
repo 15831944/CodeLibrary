@@ -53,9 +53,6 @@
     <ClInclude Include="..\include\luautil\luautil.h">
       <Filter>include\luautil</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\sys\typedef.h">
-      <Filter>include\sys</Filter>
-    </ClInclude>
     <ClInclude Include="unitdata.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -76,6 +73,12 @@
     </ClInclude>
     <ClInclude Include="..\include\sys\types.h">
       <Filter>include\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="typedef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="luacode.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

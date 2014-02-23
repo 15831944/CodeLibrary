@@ -90,11 +90,12 @@
     <ClInclude Include="..\include\sys\sync.h" />
     <ClInclude Include="..\include\sys\sysdef.h" />
     <ClInclude Include="..\include\sys\tchar.h" />
-    <ClInclude Include="..\include\sys\typedef.h" />
     <ClInclude Include="..\include\sys\types.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="loger.h" />
+    <ClInclude Include="luacode.h" />
     <ClInclude Include="luaobject.h" />
+    <ClInclude Include="typedef.h" />
     <ClInclude Include="unitdata.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

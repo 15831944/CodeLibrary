@@ -5,6 +5,7 @@
 #include <map>
 #include "luautil/luna.h"
 #include "luautil/luautil.h"
+#include "sys/sync.h"
 #include "config.h"
 
 using std::list;
@@ -36,6 +37,8 @@ public:
         }
         return pNew;
     }
+
+
 private:
     //根据unitid获取UnitData*，若无返回NULL
     static UnitData* GetByUnitId(const UnitId_T id);
@@ -45,6 +48,7 @@ private:
     static map<UnitId_T, UnitData*> _id2Data;
     //UnitData的列表，在程序运行期间，里面的元素创建之后不会被释放和删除，以保存外部持有的其指针或userdata有效
     static list<UnitData*> _DataList;
+    static CReadWriteLock _rwLock;
 private:
     UnitId_T unit_id;
 };

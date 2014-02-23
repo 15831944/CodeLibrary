@@ -4,7 +4,7 @@
 #include <iostream>
 #include "luautil/luna.h"
 #include "luautil/luautil.h"
-#include "sys/typedef.h"
+#include "sys/types.h"
 
 int RegistLuaObject(lua_State* L);
 

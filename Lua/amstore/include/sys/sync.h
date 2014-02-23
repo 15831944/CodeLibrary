@@ -3,7 +3,6 @@
 
 #include "sysdef.h"
 #include "types.h"
-#include "typedef.h"
 
 class CSyncObject;
 class CSemaphore;
@@ -39,6 +38,20 @@ public:
     virtual void AssertValid() const;
 #endif
     friend class CSingleLock;
+};
+
+
+class CSyncer{
+public:
+    CSyncer(CTLSyncObject& sync):_sync(sync){
+        _sync.Lock();
+    }
+
+    virtual ~CSyncer(){
+        _sync.Unlock();
+    }
+private:
+    CTLSyncObject& _sync;
 };
 
 
@@ -132,11 +145,7 @@ public:
 };
 
 
-//! 锁对象类
-/*! 
-*  
-*/
-
+// 锁对象类
 class CSingleLock
 {
     // Constructors
@@ -300,5 +309,162 @@ DWORD TL_WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds);
 #ifndef INVALID_HANDLE_VALUE
 #define INVALID_HANDLE_VALUE (HANDLE)-1        //!< 无效对象句柄
 #endif
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//线程相关
+
+//线程工作函数返回值定义
+#ifdef WIN32
+#define THREAD_RETURN DWORD		//!< Windows线程函数返回值
+#else
+#define THREAD_RETURN void*		//!< Linux线程函数返回值
+#endif
+
+
+
+//!
+//线程工作函数定义
+//如：THREAD_RETURN DemoProc(void* pParam);
+typedef THREAD_RETURN ( *PTL_THREAD_START_ROUTINE)( void* lpThreadParameter );
+typedef PTL_THREAD_START_ROUTINE LPTL_THREAD_START_ROUTINE;
+
+
+//创建线程
+//param 工作函数指针、工作函数参数
+//return 返回 线程ID
+HANDLE TL_CreateThread(LPTL_THREAD_START_ROUTINE lpStartAddress,  void* lpParameter, LPDWORD lpThreadId);
+
+
+// 等待线程退出
+//param hThread 线程句柄
+//param dwWaitTime 等待退出的时间(毫秒)
+//return 句柄无效或者成功退出返回true，超时返回false
+BOOL TL_WaitThread(HANDLE hThread,	DWORD  dwWaitTime = INFINITE);
+
+
+//等待线程退出
+//param hThread 线程句柄
+//param bExit   线程退出的标志。函数等待这个值变成 true ，就退出。认为线程已经退出。
+//param dwWaitTime 等待退出的时间(毫秒)
+//return 句柄无效或者成功退出返回true，超时调用 TL_TerminateThread 杀死线程，并返回false
+//remarks 这个函数不使用 WaitForSingleObject ，因为在动态库里面退出时，这个函数可能会死锁
+bool TL_WaitThread(HANDLE hThread,	volatile bool  &bExit, DWORD  dwWaitTime = INFINITE);
+
+//强行结束线程
+//param hThread 线程句柄
+//return 无
+void TL_TerminateThread(HANDLE hThread);
+
+
+//取得线程ID
+//return 线程ID
+DWORD TL_GetCurrentThreadId();
+
+
+//取得线程
+//return 线程
+HANDLE TL_GetCurrentThread();
+
+
+//取得进程ID
+//\return 进程ID
+DWORD TL_GetCurrentProcessId();
+
+
+// 取父进程ID 传入0时取当前进程父进程
+DWORD TL_GetParentProcessID(DWORD dwProcessID = 0);
+
+
+//休眠
+//param dwMilliseconds 休眠时间，单位毫秒
+//return 无
+void TL_Sleep( DWORD dwMilliseconds );
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//!线程的类操作模型
+
+#if defined(__LINUX) || defined(__MAC)
+#define HAVE_PTHREAD_H
+#endif
+
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#else
+#ifdef __WINDOWS
+#include <windows.h>
+#include <process.h>
+#endif
+#endif
+
+#if defined HAVE_PTHREAD_H
+#define CRFPP_USE_THREAD 1
+#endif
+
+#if(defined(_WIN32) && ! defined (__CYGWIN__))
+#define CRFPP_USE_THREAD 1
+#define BEGINTHREAD(src, stack, func, arg, flag, id) \
+    (HANDLE)_beginthreadex((void *)(src),(unsigned)(stack), \
+    (unsigned(_stdcall *)(void *))(func),(void *)(arg), \
+    (unsigned)(flag),(unsigned *)(id))
+#endif
+
+
+//线程类
+class CTL_Thread
+{
+public:
+    CTL_Thread() 
+    {
+#ifdef HAVE_PTHREAD_H
+        hnd_ = 0;
+#else
+        hnd_ = NULL;
+#endif
+        m_bExit = false;
+        m_bRuning = false;
+    }
+    virtual ~CTL_Thread() {};
+
+public:
+
+    //线程函数
+    static THREAD_RETURN Wrapper(void *ptr);
+
+    //线程过程，派生实现
+    virtual void Run()
+    {
+        while(m_bRuning)
+        {
+            TL_Sleep(1000);
+        }
+    }
+
+    //启动线程
+    void Start();
+
+    virtual void Stop(DWORD dwTimeout)
+    {
+        m_bRuning = false;
+        Join(dwTimeout);
+    }
+
+    // 等待线程结束
+    //remarks 如果达到超时时间没有退出，强制杀死线程
+    void Join(DWORD dwTimeout = INFINITE);
+
+    /////////////////////////////////////////////////////////////////////////////////////
+private:
+#ifdef HAVE_PTHREAD_H
+    pthread_t hnd_;		//!< Linux线程类型
+#else
+#ifdef _WIN32
+    HANDLE  hnd_;		//!< Windows线程句柄
+#endif
+#endif
+    volatile bool  m_bExit;		//线程是否已经退出。 = true 表示已经退出
+protected:
+    volatile bool m_bRuning;
+};
 
 #endif

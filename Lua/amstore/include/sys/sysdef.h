@@ -19,10 +19,9 @@
 #if (defined(__LINUX) || defined(__MAC))
 #include <assert.h>
 #define ASSERT assert
-#endif
-
-#if (defined(__WINDOWS))
+#elif (defined(__WINDOWS))
 #include <cassert>
+#include <Windows.h>
 #define ASSERT assert
 #endif 
 
