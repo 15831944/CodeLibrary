@@ -85,7 +85,7 @@ public:
 
         //methods,metatable,mt,new_T
         //设置metatable.__call = new_T，让脚本可能直接通过classname()来实现classname:new()的功能
-        cout << "Register top __call=" << lua_gettop(L) << endl;
+        // cout << "Register top __call=" << lua_gettop(L) << endl;
         set(L, -3, "__call");           // mt.__call = new_T
 
         //创建create方法，使其行为不同于new，相当于一个工场方法
@@ -103,14 +103,14 @@ public:
         for (RegType *l = T::methods; l->name; l++) {
             lua_pushstring(L, l->name);
             //methods,metatable,l->name
-            cout << "Register top 5=" << lua_gettop(L) << endl;
+            // cout << "Register top 5=" << lua_gettop(L) << endl;
             //将l做为lightuserdata压入栈，以做为函数的upvalue
             lua_pushlightuserdata(L, (void*)l);
             //methods,metatable,l->name,l
-            cout << "Register top 5.1=" << lua_gettop(L) << endl;
+            // cout << "Register top 5.1=" << lua_gettop(L) << endl;
             //将l做为函数thunk的upvalue，并将thunk入栈
             lua_pushcclosure(L, thunk, 1);
-            cout << "Register top 5.2=" << lua_gettop(L) << endl;
+            // cout << "Register top 5.2=" << lua_gettop(L) << endl;
 
             //将在methods上将l->name与thunk函数关联，l的信息做为thunk函数的upvalue
             lua_settable(L, methods);
@@ -126,29 +126,29 @@ public:
         luaL_getmetatable(L, T::className);  // lookup metatable in Lua registry
         //mt
         if (lua_isnil(L, -1)) luaL_error(L, "%s missing metatable", T::className);
-        cout << "push top 1=" << lua_gettop(L) << endl;
+        // cout << "push top 1=" << lua_gettop(L) << endl;
         //mt
         int mt = lua_gettop(L);
-        cout << "push top 2=" << lua_gettop(L) << endl;
+        // cout << "push top 2=" << lua_gettop(L) << endl;
         subtable(L, mt, "userdata", "v");
         //mt,table
-        cout << "push top 3=" << lua_gettop(L) << endl;
+        // cout << "push top 3=" << lua_gettop(L) << endl;
         //mt,table
         userdataType *ud =
             static_cast<userdataType*>(pushuserdata(L, obj, sizeof(userdataType)));
         //mt,table(userdata),ud
-        cout << "push top 4=" << lua_gettop(L) << endl;
+        // cout << "push top 4=" << lua_gettop(L) << endl;
         if (ud) {
-            cout << "push ud is not nil" << endl;
+            // cout << "push ud is not nil" << endl;
             ud->pT = obj;  // store pointer to object in userdata
             lua_pushvalue(L, mt);
             //mt,table(userdata),ud,mt
-            cout << "push top 5=" << lua_gettop(L) << endl;
+            // cout << "push top 5=" << lua_gettop(L) << endl;
             lua_setmetatable(L, -2);
             //mt,table(userdata),ud
-            cout << "push top 5.1=" << lua_gettop(L) << endl;
+            // cout << "push top 5.1=" << lua_gettop(L) << endl;
             if (gc == false) {
-                cout << "push gc is false" << endl;
+                // cout << "push gc is false" << endl;
                 lua_checkstack(L, 3);
                 subtable(L, mt, "do not trash", "k");
                 lua_pushvalue(L, -2);
@@ -157,24 +157,24 @@ public:
                 lua_pop(L, 1);
             }
         }
-        cout << "push top 6=" << lua_gettop(L) << endl;
+        // cout << "push top 6=" << lua_gettop(L) << endl;
         lua_replace(L, mt);
         //ud,table(userdata)
-        cout << "push top 7=" << lua_gettop(L) << endl;
+        // cout << "push top 7=" << lua_gettop(L) << endl;
         lua_settop(L, mt);
         //ud
-        cout << "push top 8=" << lua_gettop(L) << endl;
+        // cout << "push top 8=" << lua_gettop(L) << endl;
         return mt;  // index of userdata containing pointer to T object
     }
 
     // get userdata from Lua stack and return pointer to T object
     static T *check(lua_State *L, int narg) {
-        cout << "check top 1=" << lua_gettop(L) << endl;
+        // cout << "check top 1=" << lua_gettop(L) << endl;
         if(lua_isnil(L, narg))
             return NULL;
         userdataType *ud =
             static_cast<userdataType*>(luaL_checkudata(L, narg, T::className));
-        cout << "check top 2=" << lua_gettop(L) << endl;
+        // cout << "check top 2=" << lua_gettop(L) << endl;
         //if(!ud) luaL_typerror(L, narg, T::className);
         if(!ud) return NULL;
         return ud->pT;  // pointer to T object
@@ -187,13 +187,13 @@ private:
     // member function dispatcher
     static int thunk(lua_State *L) {
         // stack has userdata, followed by method args
-        cout << "thunk top 1=" << lua_gettop(L) << endl;
+        // cout << "thunk top 1=" << lua_gettop(L) << endl;
         T *obj = check(L, 1);  // get 'self', or if you prefer, 'this'
-        cout << "thunk top 2=" << lua_gettop(L) << endl;
+        // cout << "thunk top 2=" << lua_gettop(L) << endl;
         lua_remove(L, 1);  // remove self so member function args start at index 1
         // get member function from upvalue
         RegType *l = static_cast<RegType*>(lua_touserdata(L, lua_upvalueindex(1)));
-        cout << "thunk top 3=" << lua_gettop(L) << ",l=" << l << endl;
+        // cout << "thunk top 3=" << lua_gettop(L) << ",l=" << l << endl;
         return (obj->*(l->mfunc))(L);  // call member function
     }
 
@@ -202,31 +202,31 @@ private:
     static int new_T(lua_State *L) {
         lua_remove(L, 1);   // use classname:new(), instead of classname.new()
         T *obj = new T(L);  // call constructor for T objects
-        cout << "new_T top 1=" << lua_gettop(L) << endl;
+        // cout << "new_T top 1=" << lua_gettop(L) << endl;
         push(L, obj, true); // gc_T will delete this object
-        cout << "new_T top 2=" << lua_gettop(L) << endl;
+        // cout << "new_T top 2=" << lua_gettop(L) << endl;
         return 1;           // userdata containing pointer to T object
     }
 
     static int create_T(lua_State *L) {
-        lua_remove(L, 1);   // use classname:new(), instead of classname.new()
+        //lua_remove(L, 1);   // use classname:new(), instead of classname.new()
         T *obj = T::Create(L);      //调用Create工场方法创建或获取对象
-        cout << "create_T top 1=" << lua_gettop(L) << endl;
+        // cout << "create_T top 1=" << lua_gettop(L) << endl;
         push(L, obj, true); // gc_T will delete this object
-        cout << "create_T top 2=" << lua_gettop(L) << endl;
+        // cout << "create_T top 2=" << lua_gettop(L) << endl;
         return 1;           // userdata containing pointer to T object
     }
 
     // garbage collection metamethod
     static int gc_T(lua_State *L) {
-        if (luaL_getmetafield(L, 1, "do not trash")) {
-            lua_pushvalue(L, 1);  // dup userdata
-            lua_gettable(L, -2);
-            if (!lua_isnil(L, -1)) return 0;  // do not delete object
-        }
-        userdataType *ud = static_cast<userdataType*>(lua_touserdata(L, 1));
-        T *obj = ud->pT;
-        if (obj) delete obj;  // call destructor for T objects
+        //if (luaL_getmetafield(L, 1, "do not trash")) {
+        //    lua_pushvalue(L, 1);  // dup userdata
+        //    lua_gettable(L, -2);
+        //    if (!lua_isnil(L, -1)) return 0;  // do not delete object
+        //}
+        //userdataType *ud = static_cast<userdataType*>(lua_touserdata(L, 1));
+        //T *obj = ud->pT;
+        //if (obj) delete obj;  // call destructor for T objects
         return 0;
     }
 
@@ -249,20 +249,20 @@ private:
         //mt
         lua_newtable(L);
         //mt,table
-        cout << "weaktable top 1.00=" << lua_gettop(L) << endl;
+        // cout << "weaktable top 1.00=" << lua_gettop(L) << endl;
         lua_pushvalue(L, -1);  // table is its own metatable
-        cout << "weaktable top 1.0=" << lua_gettop(L) << endl;
+        // cout << "weaktable top 1.0=" << lua_gettop(L) << endl;
         //mt,table,table
         //设置table的metatable为其自己
         lua_setmetatable(L, -2);
-        cout << "weaktable top 1.1=" << lua_gettop(L) << endl;
+        // cout << "weaktable top 1.1=" << lua_gettop(L) << endl;
         //mt,table
         lua_pushliteral(L, "__mode");
         //mt,table,"__mode"
         lua_pushstring(L, mode);
         //mt,table,"__mode",mode
         lua_settable(L, -3);   // metatable.__mode = mode
-        cout << "weaktable top 2=" << lua_gettop(L) << endl;
+        // cout << "weaktable top 2=" << lua_gettop(L) << endl;
     }
 
     //subtable(L, mt, "userdata", "v");
@@ -270,56 +270,56 @@ private:
     static void subtable(lua_State *L, int tindex, const char *name, const char *mode) {
         //mt
         lua_pushstring(L, name);
-        cout << "subtable top 1=" << lua_gettop(L) << endl;
+        // cout << "subtable top 1=" << lua_gettop(L) << endl;
         //mt,name
         lua_gettable(L, tindex);
         //mt,mt.name
-        cout << "subtable top 2=" << lua_gettop(L) << endl;
+        // cout << "subtable top 2=" << lua_gettop(L) << endl;
         if (lua_isnil(L, -1)) {
-            cout << "subtable is nil" << endl;
+            // cout << "subtable is nil" << endl;
             lua_pop(L, 1);
             //mt
             lua_checkstack(L, 3);
             weaktable(L, mode);
             //mt,table
-            cout << "subtable top 3=" << lua_gettop(L) << ",tindex=" << tindex << endl;
+            // cout << "subtable top 3=" << lua_gettop(L) << ",tindex=" << tindex << endl;
             lua_pushstring(L, name);
             //mt,table,name
             lua_pushvalue(L, -2);
             //mt,table,name,table
             lua_settable(L, tindex);
             //mt,table
-            cout << "subtable top 4=" << lua_gettop(L) << endl;
+            // cout << "subtable top 4=" << lua_gettop(L) << endl;
         }
     }
 
     static void *pushuserdata(lua_State *L, void *key, size_t sz) {
         //mt,table(userdata)
         void *ud = 0;
-        cout << "pushuserdata top 0.2=" << lua_gettop(L) << ",key=" << key << endl;
+        // cout << "pushuserdata top 0.2=" << lua_gettop(L) << ",key=" << key << endl;
         lua_pushlightuserdata(L, key);
-        cout << "pushuserdata top 0.1=" << lua_gettop(L) << endl;
+        // cout << "pushuserdata top 0.1=" << lua_gettop(L) << endl;
         //mt,table(userdata),key
         lua_gettable(L, -2);     // lookup[key]
         //mt,table,table.key
-        cout << "pushuserdata top 1.00=" << lua_gettop(L) << endl;
+        // cout << "pushuserdata top 1.00=" << lua_gettop(L) << endl;
         if (lua_isnil(L, -1)) {
-            cout << "pushuserdata is nil" << endl;
+            // cout << "pushuserdata is nil" << endl;
             lua_pop(L, 1);         // drop nil
             //mt,table
             lua_checkstack(L, 3);
             ud = lua_newuserdata(L, sz);  // create new userdata
-            cout << "pushuserdata top 1.0=" << lua_gettop(L) << endl;
+            // cout << "pushuserdata top 1.0=" << lua_gettop(L) << endl;
             //mt,table(userdata),ud
             lua_pushlightuserdata(L, key);
             //mt,table(userdata),ud,key
-            cout << "pushuserdata top 1.1=" << lua_gettop(L) << endl;
+            // cout << "pushuserdata top 1.1=" << lua_gettop(L) << endl;
             lua_pushvalue(L, -2);  // dup userdata
             //mt,table(userdata),ud,key,ud
-            cout << "pushuserdata top 1.2=" << lua_gettop(L) << endl;
+            // cout << "pushuserdata top 1.2=" << lua_gettop(L) << endl;
             lua_settable(L, -4);   // lookup[key] = userdata
             //mt,table(userdata),ud
-            cout << "pushuserdata top 2=" << lua_gettop(L) << endl;
+            // cout << "pushuserdata top 2=" << lua_gettop(L) << endl;
         }
         return ud;
     }

@@ -37,7 +37,7 @@ typedef struct TFundBaseData
     CtsVersion_T cts_version;
     StockAccount_T stockaccount_sh;
     StockAccount_T stockaccount_sz;
-} FundLinkData;
+} FundBaseData;
 
 
 #endif
