@@ -52,6 +52,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;AMSTORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(LUA_DEV)\include;$(SolutionDir)include;$(SolutionDir)include/oci;$(SolutionDir)include/glog/windows</AdditionalIncludeDirectories>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -79,7 +80,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\include\sys\sync.cpp" />
+    <ClCompile Include="..\include\util\inifile.cpp" />
+    <ClCompile Include="..\include\util\timer.cpp" />
     <ClCompile Include="amstorelib.cpp" />
+    <ClCompile Include="business.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="loger.cpp" />
     <ClCompile Include="luaobject.cpp" />
@@ -92,10 +96,18 @@
     <ClInclude Include="..\include\sys\sysdef.h" />
     <ClInclude Include="..\include\sys\tchar.h" />
     <ClInclude Include="..\include\sys\types.h" />
+    <ClInclude Include="..\include\util\databuffer.h" />
+    <ClInclude Include="..\include\util\inifile.h" />
+    <ClInclude Include="..\include\util\serialgen.h" />
+    <ClInclude Include="..\include\util\timer.h" />
+    <ClInclude Include="business.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="dbsaver.h" />
     <ClInclude Include="loger.h" />
     <ClInclude Include="luacode.h" />
     <ClInclude Include="luaobject.h" />
+    <ClInclude Include="tradedate.h" />
+    <ClInclude Include="trandata.h" />
     <ClInclude Include="typedef.h" />
     <ClInclude Include="unitdata.h" />
   </ItemGroup>

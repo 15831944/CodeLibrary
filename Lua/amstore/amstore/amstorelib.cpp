@@ -8,6 +8,6 @@ extern "C"
     {
         RegistLuaObject(L);
         RegistUnitBase(L);
-        return 0;
+        return 1;
     }
 }

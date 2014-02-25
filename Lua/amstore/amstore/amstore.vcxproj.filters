@@ -22,6 +22,9 @@
     <Filter Include="include\sys">
       <UniqueIdentifier>{3987b2d3-d455-491f-b3f6-ac7f410bfba3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\util">
+      <UniqueIdentifier>{b6785792-e8ec-4146-8b04-2a376b363c71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -41,6 +44,15 @@
     </ClCompile>
     <ClCompile Include="..\include\sys\sync.cpp">
       <Filter>include\sys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\util\inifile.cpp">
+      <Filter>include\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\util\timer.cpp">
+      <Filter>include\util</Filter>
+    </ClCompile>
+    <ClCompile Include="business.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +90,30 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="luacode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tradedate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="business.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\util\databuffer.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\util\inifile.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\util\timer.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="trandata.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\util\serialgen.h">
+      <Filter>include\util</Filter>
+    </ClInclude>
+    <ClInclude Include="dbsaver.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

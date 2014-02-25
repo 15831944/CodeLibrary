@@ -8,6 +8,9 @@ require('hexin.threadex');
 local util = hexin.util;
 local thread = hexin.thread;
 
+print("type(amstore)=" .. type(amstore));
+
+print("amstore.GetUnitBaseByOperId=" .. type(amstore.GetUnitBaseByOperId));
 
 function GenTableStr(tbl)
     local msgstr;
@@ -45,6 +48,22 @@ local unitbase = {
     institution_name = "institution_name",
     operator_id = OperIdBase,
     operator_name = OperNameBase .. OperIdBase,
+};
+
+local FundBase = {
+    fund_id = 702002,
+    trade_password = "trade_password",
+    comm_password = "comm_password", 
+    brokeroffice_code = "brokeroffice_code", 
+    broker_code = "broker_code",
+    trade_ip = "trade_ip",
+    trade_port = 777,
+    query_ip = "query_ip",
+    query_port = 888,
+    broker_name = "broker_name",
+    cts_version = "cts_version",
+    stockaccount_sh = "stockaccount_sh",
+    stockaccount_sz = "stockaccount_sz",
 };
 
 local function TestAddUnitBaseData(unitId, unitbase)
@@ -106,7 +125,7 @@ local function TestGetUnitBaseData(unitId)
 end
 
 local function TestGetUnitBaseByOperId(operId)
-    local iRet, data = amstore.unitdata.GetUnitBaseByOperId(operId);
+    local iRet, data = amstore.GetUnitBaseByOperId(operId);
 
     if iRet == 0 then
         local idx = 1;
@@ -138,7 +157,7 @@ local function TestGetUnitBaseByOperId(operId)
 end
 
 local function TestGetUnitBaseByOperName(operName)
-    local iRet, data = amstore.unitdata.GetUnitBaseByOperName(operName);
+    local iRet, data = amstore.GetUnitBaseByOperName(operName);
 
     if iRet == 0 then
         local idx = 1;
@@ -165,15 +184,73 @@ local function TestGetUnitBaseByOperName(operName)
             print("==error==TestGetUnitBaseByOperName.data=" .. GenTableStr(data) .. ",unitId=" .. unitId);
         end
     else
-        print("==error==TestGetUnitBaseByOperName.iRet=" .. iRetd);     
+        print("==error==TestGetUnitBaseByOperName.iRet=", iRetd);     
     end
 end
 
 
 local function TestGetFastUnitBaseByOperName(operName)
-    local unit_id, operator_id,fund_id = amstore.unitdata.GetFastUnitBaseByOperName(operName);
+    local unit_id, operator_id,fund_id = amstore.GetFastUnitBaseByOperName(operName);
+    unit_id = tonumber(unit_id) or-1;
     if unit_id <= 0 then
          print("==error==TestGetFastUnitBaseByOperName.unit_id=" .. unit_id);            
+    end
+end
+
+local function TestAddFundBaseData(unitId, data)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestGetUnitBaseData.create error");
+        return;
+    end
+
+    local iRet = ud:AddFundBaseData(data.fund_id,data.trade_password,
+    data.comm_password, data.brokeroffice_code, data.broker_code,data.trade_ip,
+    data.trade_port,data.query_ip,data.query_port,
+    data.broker_name,data.cts_version,data.stockaccount_sh,data.stockaccount_sz);
+
+    if iRet ~= 0 then
+        print("==error==TestAddFundBaseData.iRet=", iRetd);     
+    end
+end
+
+local function TestGetFundBaseData(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestGetFundBaseData.create error");
+        return;
+    end
+
+    local iRet, data = ud:GetFundBaseData(unitId);
+
+    if iRet == 0 then
+        local idx = 1;
+        data.fund_id = data[idx]; idx = idx + 1;
+        data.trade_password = data[idx]; idx = idx + 1;
+        data.comm_password = data[idx]; idx = idx + 1;
+        data.brokeroffice_code = data[idx]; idx = idx + 1;
+        data.broker_code = data[idx]; idx = idx + 1;
+        data.trade_ip = data[idx]; idx = idx + 1;
+        data.trade_port = data[idx]; idx = idx + 1;
+        data.query_ip = data[idx]; idx = idx + 1;
+        data.query_port = data[idx]; idx = idx + 1;
+        data.broker_name = data[idx]; idx = idx + 1;
+        data.cts_version = data[idx]; idx = idx + 1;
+        data.stockaccount_sh = data[idx]; idx = idx + 1;
+        data.stockaccount_sz = data[idx]; idx = idx + 1;
+            
+        if data.fund_id ~= FundBase.fund_id or data.trade_password ~= FundBase.trade_password
+            or data.comm_password ~= FundBase.comm_password or data.brokeroffice_code ~= FundBase.brokeroffice_code 
+            or data.broker_code ~= FundBase.broker_code or data.trade_ip ~= FundBase.trade_ip 
+            or data.trade_port ~= FundBase.trade_port or data.query_ip ~= FundBase.query_ip 
+            or data.query_port ~= FundBase.query_port or data.broker_name ~= FundBase.broker_name 
+            or data.cts_version ~= FundBase.cts_version or data.stockaccount_sh ~= FundBase.stockaccount_sh 
+            or data.stockaccount_sz ~= FundBase.stockaccount_sz 
+            then
+            print("==error==TestGetFundBaseData.data=" .. GenTableStr(data) .. ",unitId=" .. unitId);
+        end
+    else
+        print("==error==TestGetFundBaseData.iRet=", iRetd);     
     end
 end
 
@@ -186,6 +263,8 @@ function Test()
         TestGetUnitBaseByOperId(unitbase.operator_id);
         TestGetUnitBaseByOperName(unitbase.operator_name);
         TestGetFastUnitBaseByOperName(unitbase.operator_name);
+        TestAddFundBaseData(idx, FundBase);
+        TestGetFundBaseData(idx);
     end
 
     for idx = 702001001, 702001011 do
@@ -196,6 +275,8 @@ function Test()
         TestGetUnitBaseByOperId(unitbase.operator_id);
         TestGetUnitBaseByOperName(unitbase.operator_name);
         TestGetFastUnitBaseByOperName(unitbase.operator_name);
+        TestAddFundBaseData(idx, FundBase);
+        TestGetFundBaseData(idx);
     end
 end
 
