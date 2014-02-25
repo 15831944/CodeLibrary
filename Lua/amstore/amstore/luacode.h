@@ -54,19 +54,86 @@
     CS((p)->stockaccount_sz, L, 13)
 
 #define LUAPACK_FUNDLINK(L, p) lua_newtable(L); \
-    PINT(L, 1); PINT(L, (p)->fund_id); lua_newtable(L); \
-    PINT(L, 2); PS(L, (p)->trade_password); lua_newtable(L); \
-    PINT(L, 3); PS(L, (p)->comm_password); lua_newtable(L); \
-    PINT(L, 4); PS(L, (p)->brokeroffice_code); lua_newtable(L); \
-    PINT(L, 5); PS(L, (p)->broker_code); lua_newtable(L); \
-    PINT(L, 6); PS(L, (p)->trade_ip); lua_newtable(L); \
-    PINT(L, 7); PINT(L, (p)->trade_port); lua_newtable(L); \
-    PINT(L, 8); PS(L, (p)->query_ip); lua_newtable(L); \
-    PINT(L, 9); PINT(L, (p)->query_port); lua_newtable(L); \
-    PINT(L, 10); PS(L, (p)->broker_name); lua_newtable(L); \
-    PINT(L, 11); PS(L, (p)->cts_version); lua_newtable(L); \
-    PINT(L, 12); PS(L, (p)->stockaccount_sh); lua_newtable(L); \
-    PINT(L, 13); PS(L, (p)->stockaccount_sz); lua_newtable(L)
+    PINT(L, 1); PINT(L, (p)->fund_id); lua_settable(L, -3); \
+    PINT(L, 2); PS(L, (p)->trade_password); lua_settable(L, -3); \
+    PINT(L, 3); PS(L, (p)->comm_password); lua_settable(L, -3); \
+    PINT(L, 4); PS(L, (p)->brokeroffice_code); lua_settable(L, -3); \
+    PINT(L, 5); PS(L, (p)->broker_code); lua_settable(L, -3); \
+    PINT(L, 6); PS(L, (p)->trade_ip); lua_settable(L, -3); \
+    PINT(L, 7); PINT(L, (p)->trade_port); lua_settable(L, -3); \
+    PINT(L, 8); PS(L, (p)->query_ip); lua_settable(L, -3); \
+    PINT(L, 9); PINT(L, (p)->query_port); lua_settable(L, -3); \
+    PINT(L, 10); PS(L, (p)->broker_name); lua_settable(L, -3); \
+    PINT(L, 11); PS(L, (p)->cts_version); lua_settable(L, -3); \
+    PINT(L, 12); PS(L, (p)->stockaccount_sh); lua_settable(L, -3); \
+    PINT(L, 13); PS(L, (p)->stockaccount_sz); lua_settable(L, -3)
 
+
+//----business----
+#define LUAPACK_BUSINESS_TABLE(L, p) lua_newtable(L); \
+    PINT(L, 1); PINT(L, (p)->busin_date); lua_settable(L, -3); \
+    PINT(L, 2); PINT(L, (p)->batchop_id); lua_settable(L, -3); \
+    PINT(L, 3); PINT(L, (p)->business_id); lua_settable(L, -3); \
+    PINT(L, 4); PINT(L, (p)->businclass_code); lua_settable(L, -3); \
+    PINT(L, 5); PINT(L, (p)->fund_id); lua_settable(L, -3); \
+    PINT(L, 6); PINT(L, (p)->unit_id); lua_settable(L, -3); \
+    PINT(L, 7); PS(L, (p)->combi_code); lua_settable(L, -3); \
+    PINT(L, 8); PS(L, (p)->stock_code); lua_settable(L, -3); \
+    PINT(L, 9); PN(L, (p)->balance); lua_settable(L, -3); \
+    PINT(L, 10); PN(L, (p)->current_cash); lua_settable(L, -3); \
+    PINT(L, 11); PN(L, (p)->balance_excludefee); lua_settable(L, -3); \
+    PINT(L, 12); PINT(L, (p)->business_amount); lua_settable(L, -3); \
+    PINT(L, 13); PINT(L, (p)->current_amount); lua_settable(L, -3); \
+    PINT(L, 14); PN(L, (p)->business_price); lua_settable(L, -3); \
+    PINT(L, 15); PINT(L, (p)->business_time); lua_settable(L, -3); \
+    PINT(L, 16); PINT(L, (p)->entrust_id); lua_settable(L, -3); \
+    PINT(L, 17); PINT(L, (p)->entrustdirection_code); lua_settable(L, -3); \
+    PINT(L, 18); PN(L, (p)->jy_fee); lua_settable(L, -3); \
+    PINT(L, 19); PN(L, (p)->js_fee); lua_settable(L, -3); \
+    PINT(L, 20); PN(L, (p)->yh_fee); lua_settable(L, -3); \
+    PINT(L, 21); PN(L, (p)->gh_fee); lua_settable(L, -3); \
+    PINT(L, 22); PN(L, (p)->qt_fee); lua_settable(L, -3); \
+    PINT(L, 23); PN(L, (p)->yj_fee); lua_settable(L, -3); \
+    PINT(L, 24); PN(L, (p)->jg_fee); lua_settable(L, -3); \
+    PINT(L, 25); PN(L, (p)->zg_fee); lua_settable(L, -3); \
+    PINT(L, 26); PN(L, (p)->js2_fee); lua_settable(L, -3); \
+    PINT(L, 27); PINT(L, (p)->operator_id); lua_settable(L, -3); \
+    PINT(L, 28); PINT(L, (p)->ext_business_id); lua_settable(L, -3)
+
+#define LUAUNPACK_BUSINESS(L, p) \
+    (p)->busin_date = PAI(L, 1); \
+    (p)->batchop_id = PAI(L, 2); \
+    (p)->business_id = PAI(L, 3); \
+    (p)->businclass_code = PAI(L, 4); \
+    (p)->fund_id = PAI(L, 5); \
+    (p)->unit_id = PAI(L, 6); \
+    CS((p)->combi_code, L, 7); \
+    CS((p)->stock_code, L, 8); \
+    (p)->balance = PAD(L, 9); \
+    (p)->current_cash = PAD(L, 10); \
+    (p)->balance_excludefee = PAD(L, 11); \
+    (p)->business_amount = PAI(L, 12); \
+    (p)->current_amount = PAI(L, 13); \
+    (p)->business_price = PAD(L, 14); \
+    (p)->business_time = PAI(L, 15); \
+    (p)->entrust_id = PAI(L, 16); \
+    (p)->entrustdirection_code = PAI(L, 17); \
+    (p)->jy_fee = PAD(L, 18); \
+    (p)->js_fee = PAD(L, 19); \
+    (p)->yh_fee = PAD(L, 20); \
+    (p)->gh_fee = PAD(L, 21); \
+    (p)->qt_fee = PAD(L, 22); \
+    (p)->yj_fee = PAD(L, 23); \
+    (p)->jg_fee = PAD(L, 24); \
+    (p)->zg_fee = PAD(L, 25); \
+    (p)->js2_fee = PAD(L, 26); \
+    (p)->operator_id = PAI(L, 27); \
+    (p)->ext_business_id = PAI(L, 28)
+
+#define LUAPACK_BUSINESS_UPDATE_ITEM_TABLE(L, p) lua_newtable(L); \
+    PINT(L, 1); PINT(L, (p)->unit_id); lua_settable(L, -3); \
+    PINT(L, 2); PINT(L, (p)->business_id); lua_settable(L, -3); \
+    PINT(L, 3); PINT(L, (p)->seesion_id); lua_settable(L, -3); \
+    PINT(L, 4); PLS(L, (p)->sql.c_str(), (p)->sql.length()); lua_settable(L, -3)
 
 #endif

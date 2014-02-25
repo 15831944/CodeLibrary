@@ -6,6 +6,7 @@
 #include <string>
 #include "luautil/luna.h"
 #include "luautil/luautil.h"
+#include "util/serialgen.h"
 #include "sys/sync.h"
 #include "config.h"
 #include "typedef.h"
@@ -77,6 +78,7 @@ private:
     UnitId_T unit_id;
     UnitBaseData *pUnitBaseData;
     FundBaseData *pFundBaseData;
+    SerialGenerater serialGen;
 
     friend int GetUnitBaseByOperId_F(lua_State* L);
     friend int GetUnitBaseByOperName_F(lua_State* L);

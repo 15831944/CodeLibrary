@@ -141,7 +141,7 @@ BOOL CEvent::ResetEvent()
 //////////////////////////CCriticalSection//////////////////////////
 CCriticalSection::CCriticalSection() : CTLSyncObject(NULL)
 {
-    ::InitializeCriticalSection(&m_sect);
+    ::InitializeCriticalSectionAndSpinCount(&m_sect, 100);
 }
 
 CCriticalSection::operator CRITICAL_SECTION*()

@@ -161,8 +161,8 @@ int UnitData::GetFundBaseData(lua_State* L)
 {
     LOG(INFO) << "[UnitData::GetFundBaseData]start.unit_id = " << unit_id << LOG_END_FLAG;
     int iRes = 2;
-    LUAPACK_FUNDLINK(L, pFundBaseData);
     PINT(L, 0);
+    LUAPACK_FUNDLINK(L, pFundBaseData);
     LOG(INFO) << "[UnitData::GetFundBaseData]end.unit_id = " << unit_id << ",fund_id = " <<pFundBaseData->fund_id << ",cts_version = "
         << pFundBaseData->cts_version << LOG_END_FLAG;
     return iRes;
@@ -171,8 +171,12 @@ int UnitData::GetFundBaseData(lua_State* L)
 
 int GetUnitBaseByOperId_F(lua_State* L)
 {
+    LOG(INFO) << "[GetUnitBaseByOperId_F]start." << LOG_END_FLAG;
     int iRes = 0;
     OperatorId_T operId = PAI(L, 1);
+
+    LOG(INFO) << "[GetUnitBaseByOperId_F]operId=" << operId << LOG_END_FLAG;
+
     UnitData* pUnitData = UnitData::GetByOper(operId);
     if(pUnitData){
         PINT(L, 0);
@@ -183,10 +187,10 @@ int GetUnitBaseByOperId_F(lua_State* L)
         iRes = 2;
     }else{
         iRes = 1;
-        iRes = 1;
         PINT(L, -1);
     }
     
+    LOG(INFO) << "[GetUnitBaseByOperId_F]end.iRes=" << iRes << LOG_END_FLAG;
     return iRes;
 }
 
@@ -198,22 +202,25 @@ LUA_LIB_API GetUnitBaseByOperId(lua_State* L)
 
 int GetUnitBaseByOperName_F(lua_State* L)
 {
-    LOG(INFO) << "[GetUnitBaseByOperName]start." << LOG_END_FLAG;
+    LOG(INFO) << "[GetUnitBaseByOperName_F]start." << LOG_END_FLAG;
     int iRes = 0;
-    OperatorId_T operId = PAI(L, 1);
-    UnitData* pUnitData = UnitData::GetByOper(operId);
+    OperatorName_T operName = {0};
+    CS(operName, L, 1);
+
+    LOG(INFO) << "[GetUnitBaseByOperName_F]operName=" << operName << LOG_END_FLAG;
+    UnitData* pUnitData = UnitData::GetByOper(operName);
     if(pUnitData){
+        PINT(L, 0);
         LUAPACK_UNITBASE(L, pUnitData->pUnitBaseData);
-        LOG(INFO) << "[GetUnitBaseByOperName]:success,unit_id = " << pUnitData->pUnitBaseData->unit_id 
+        LOG(INFO) << "[GetUnitBaseByOperName_F]:success,unit_id = " << pUnitData->pUnitBaseData->unit_id 
             << ",operator_id = " << pUnitData->pUnitBaseData->operator_id
             << ",operator_name = " << pUnitData->pUnitBaseData->operator_name << LOG_END_FLAG;
         iRes = 2;
-        PINT(L, 0);
     }else{
-        iRes = 1;
         PINT(L, -1);
+        iRes = 1;
     }
-    LOG(INFO) << "[GetUnitBaseByOperName]start.iRes=" << iRes << LOG_END_FLAG;
+    LOG(INFO) << "[GetUnitBaseByOperName_F]start.iRes=" << iRes << LOG_END_FLAG;
     return iRes;
 }
 
@@ -225,9 +232,13 @@ LUA_LIB_API GetUnitBaseByOperName(lua_State* L)
 
 int GetFastUnitBaseByOperName_F(lua_State* L)
 {
+    LOG(INFO) << "[GetFastUnitBaseByOperName_F]start." << LOG_END_FLAG;
     int iRes = 0;
-    OperatorId_T operId = PAI(L, 1);
-    UnitData* pUnitData = UnitData::GetByOper(operId);
+    OperatorName_T operName = {0};
+    CS(operName, L, 1);
+
+    LOG(INFO) << "[GetFastUnitBaseByOperName_F]operName=" << operName << LOG_END_FLAG;
+    UnitData* pUnitData = UnitData::GetByOper(operName);
     if(pUnitData){
         PINT(L, pUnitData->unit_id); 
         PINT(L, pUnitData->pUnitBaseData->operator_id); 
@@ -237,6 +248,7 @@ int GetFastUnitBaseByOperName_F(lua_State* L)
             << ",fund_id = " << pUnitData->pUnitBaseData->fund_id << LOG_END_FLAG;
         iRes = 3;
     }
+    LOG(INFO) << "[GetFastUnitBaseByOperName_F]end.iRes=" << iRes << LOG_END_FLAG;
     return iRes;
 }
 
@@ -268,7 +280,7 @@ int RegistUnitBase(lua_State* L)
 {
     Lunar<UnitData>::Register(L);
 
-    luaL_register(L, "amstore.unitdata", mylibs);
+    luaL_register(L, "amstore", mylibs);
 
     return 0;
 }
