@@ -87,6 +87,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="loger.cpp" />
     <ClCompile Include="luaobject.cpp" />
+    <ClCompile Include="unitasset.cpp" />
     <ClCompile Include="unitdata.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -103,12 +104,14 @@
     <ClInclude Include="business.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="dbsaver.h" />
+    <ClInclude Include="entrust.h" />
     <ClInclude Include="loger.h" />
     <ClInclude Include="luacode.h" />
     <ClInclude Include="luaobject.h" />
     <ClInclude Include="tradedate.h" />
     <ClInclude Include="trandata.h" />
     <ClInclude Include="typedef.h" />
+    <ClInclude Include="unitasset.h" />
     <ClInclude Include="unitdata.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,3 +1,5 @@
+package.cpath = ".\\?.dll";
+
 require('hx');
 require('hexin.threadex');
 local util = hexin.util;

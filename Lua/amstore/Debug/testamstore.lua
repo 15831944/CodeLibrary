@@ -66,6 +66,53 @@ local FundBase = {
     stockaccount_sz = "stockaccount_sz",
 };
 
+local Business = {
+    busin_date = 20140202, 
+    batchop_id = 1, 
+    business_id = 1, 
+    businclass_code = "businclass_code", 
+    fund_id = 702002,
+    unit_id = 702002002, 
+    combi_code = "combi_code", 
+    stock_code = "stock_code", 
+    balance = 22, 
+    current_cash = 33,
+    balance_excludefee = 1, 
+    business_amount = 100, 
+    current_amount = 200,  
+    business_price = 11,  
+    business_time = 121212,
+    entrust_id = 1, 
+    entrustdirection_code = 1201, 
+    jy_fee = 1,  
+    js_fee = 1,  
+    yh_fee = 1,
+    gh_fee = 1, 
+    qt_fee = 1, 
+    yj_fee = 1, 
+    jg_fee = 1,  
+    zg_fee = 1,
+    js2_fee = 1, 
+    operator_id = OperIdBase,
+    ext_business_id = 1,
+};
+
+local UnitAsset = {
+    busin_date = 20140202, 
+    unit_id = 702002002, 
+    currency_code = "cny", 
+    begin_cash = 10000, 
+    current_cash = 10000,
+    prebuy_balance = 0, 
+    prebuy_fee = 0, 
+    presale_balance = 0, 
+    presale_fee = 0, 
+    input_balance = 0,
+    output_balance = 0, 
+    input_total = 0, 
+    output_total = 0,
+};
+
 local function TestAddUnitBaseData(unitId, unitbase)
     local ud = UnitData.create(unitId);
     
@@ -73,8 +120,6 @@ local function TestAddUnitBaseData(unitId, unitbase)
         print("==error==TestAddUnitBaseData.create error");
         return;
     end
-    
-    print(type(ud), type(ud.AddUnitBaseData));
     
     local res = ud:AddUnitBaseData(unitId, unitbase.unit_code,unitbase.unit_name,unitbase.fund_id,
     unitbase.fund_code,unitbase.fund_name,unitbase.busin_date,unitbase.prebusin_date,
@@ -254,6 +299,299 @@ local function TestGetFundBaseData(unitId)
     end
 end
 
+local function TestInitBusiness(unitId, curData)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestInitBusiness.create error");
+        return;
+    end
+
+    local iRet, data = ud:BusiInitData(curData.busin_date, curData.batchop_id, curData.business_id, curData.businclass_code, curData.fund_id,
+                curData.unit_id, curData.combi_code, curData.stock_code, curData.balance, curData.current_cash,
+                curData.balance_excludefee, curData.business_amount, curData.current_amount,  curData.business_price,  curData.business_time,
+                curData.entrust_id, curData.entrustdirection_code, curData.jy_fee,  curData.js_fee,  curData.yh_fee,
+                curData.gh_fee, curData.qt_fee, curData.yj_fee, curData.jg_fee,  curData.zg_fee,
+                curData.js2_fee, curData.operator_id, curData.ext_business_id);
+    if iRet < 0 then
+        print("==error==TestInitBusiness.iRet=", iRetd);
+    end
+end
+
+local function TestAddBusiness(unitId, curData, tranIdx)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAddBusiness.create error");
+        return;
+    end
+
+    local iRet, data = ud:BusiAddData(curData.busin_date, curData.batchop_id, curData.business_id, curData.businclass_code, curData.fund_id,
+                curData.unit_id, curData.combi_code, curData.stock_code, curData.balance, curData.current_cash,
+                curData.balance_excludefee, curData.business_amount, curData.current_amount,  curData.business_price,  curData.business_time,
+                curData.entrust_id, curData.entrustdirection_code, curData.jy_fee,  curData.js_fee,  curData.yh_fee,
+                curData.gh_fee, curData.qt_fee, curData.yj_fee, curData.jg_fee,  curData.zg_fee,
+                curData.js2_fee, curData.operator_id, curData.ext_business_id, tranIdx);
+    if iRet < 0 then
+        print("==error==TestAddBusiness.iRet=", iRetd);
+    end
+end
+
+local function TestGetAllBusiness(unitId, count)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestInitBusiness.create error");
+        return;
+    end
+
+    local iRet, data = ud:BusiGetAllData();
+    if iRet < 0 or type(data) ~= "table" or #data ~= count then
+        print("==error==TestGetAllBusiness.iRet=", iRet, #data);
+    end
+end
+
+local function TestBusiReleaseData(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==BusiReleaseData.create error");
+        return;
+    end
+
+    local iRet = ud:BusiReleaseData();
+    if iRet < 0 then
+        print("==error==BusiReleaseData.iRet=", iRetd);
+    end
+
+    TestGetAllBusiness(unitId, 0);
+end
+
+local function TestNewTransaction(unitId, tranIdx)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestNewTransaction.create error");
+        return;
+    end
+
+    local iRet = ud:NewTransaction();
+    if iRet < 0 then
+        print("==error==TestNewTransaction.iRet=", iRetd);
+    end
+
+    return iRet;
+end
+
+local function TestBusiRollbackData(unitId, tranIdx)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestBusiRollbackData.create error");
+        return;
+    end
+
+    local iRet = ud:BusiRollbackData(tranIdx);
+    if iRet < 0 then
+        print("==error==TestBusiRollbackData.iRet=", iRetd);
+    end
+
+    return iRet;
+end
+
+local function TestLockSaveInfo(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestLockSaveInfo.create error");
+        return;
+    end
+
+    local iRet = ud:LockSaveInfo();
+
+    local iRet = ud:BusiInitDbSaveInfo();
+    return iRet;
+end
+
+local function TestUnlockSaveInfo(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestUnlockSaveInfo.create error");
+        return;
+    end
+
+    local iRet = ud:UnlockSaveInfo();
+    return iRet;
+end
+
+local function TestBusiGetSaveInfo(unitId, flag)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==BusiGetSaveInfo.create error");
+        return;
+    end
+
+    flag = flag or 1;
+
+    local iRet, data = ud:BusiGetSaveInfo();
+    if iRet < 0 or ((type(data) ~= "table" or #data <= 0) and flag ~= 0) then
+        print("==error==TestBusiGetSaveInfo.iRet=", iRet, flag);
+    end
+
+    for idx = 1, #data do
+        --print("sql=", data[idx][1]);
+    end
+
+    return iRet;
+end
+
+local function TestBusiDoneSaveInfo(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestBusiDoneSaveInfo.create error");
+        return;
+    end
+
+    local iRet, data = ud:BusiDoneSaveInfo();
+    if iRet < 0  then
+        print("==error==TestBusiDoneSaveInfo.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
+local function TestAssetInitData(unitId, curData)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetInitData.create error");
+        return;
+    end
+
+    local iRet = ud:AssetInitData(curData.busin_date, curData.unit_id, curData.currency_code, curData.begin_cash, curData.current_cash,
+                curData.prebuy_balance, curData.prebuy_fee, curData.presale_balance, curData.presale_fee, curData.input_balance,
+                curData.output_balance, curData.input_total, curData.output_total);
+    if iRet < 0  then
+        print("==error==TestAssetInitData.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
+local function TestAssetUpdateByEntrust(unitId, data, tranIdx)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetUpdateByEntrust.create error");
+        return;
+    end
+
+    local iRet = ud:AssetUpdateByEntrust(data.currency_code, data.prebuy_balance, data.presale_balance,
+        data.prebuy_fee, data.presale_fee, tranIdx);
+    if iRet < 0  then
+        print("==error==TestAssetUpdateByEntrust.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
+local function TestAssetUpdateByBusiness(unitId, data, tranIdx)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetUpdateByBusiness.create error");
+        return;
+    end
+
+    local iRet = ud:AssetUpdateByBusiness(data.currency_code, data.current_cash, data.prebuy_balance, data.presale_balance,
+        data.prebuy_fee, data.presale_fee, tranIdx);
+    if iRet < 0  then
+        print("==error==TestAssetUpdateByBusiness.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
+local function TestAssetGetData(unitId, curCode)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetGetData.create error");
+        return;
+    end
+
+    local iRet, data = ud:AssetGetData(curCode);
+    if iRet < 0 or type(data) ~= "table" or #data <= 0 then
+        print("==error==TestAssetGetData.iRet=", iRet);
+    end
+
+    return data;
+end
+
+local function TestAssetReleaseData(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetReleaseData.create error");
+        return;
+    end
+
+    local iRet = ud:AssetReleaseData(curCode);
+    if iRet < 0 then
+        print("==error==TestAssetReleaseData.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
+local function TestAssetRollbackData(unitId, tranIdx)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetRollbackData.create error");
+        return;
+    end
+
+    local iRet = ud:AssetRollbackData(tranIdx);
+    if iRet < 0 then
+        print("==error==TestAssetRollbackData.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
+local function TestAssetInitDbSaveInfo(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetInitDbSaveInfo.create error");
+        return;
+    end
+
+    local iRet = ud:AssetInitDbSaveInfo();
+    if iRet < 0 then
+        print("==error==TestAssetInitDbSaveInfo.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
+local function TestAssetGetSaveInfo(unitId, flag)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetGetSaveInfo.create error");
+        return;
+    end
+
+    local iRet, data = ud:AssetGetSaveInfo();
+    if iRet < 0 or ((type(data) ~= "table" or #data <= 0) and flag ~= 0) then
+        print("==error==TestAssetGetSaveInfo.iRet=", iRet, flag);
+    end
+
+    return iRet;
+end
+
+local function TestAssetDoneSaveInfo(unitId)
+    local ud = UnitData.create(unitId);
+    if not ud then
+        print("==error==TestAssetDoneSaveInfo.create error");
+        return;
+    end
+
+    local iRet = ud:AssetDoneSaveInfo();
+    if iRet < 0 then
+        print("==error==TestAssetDoneSaveInfo.iRet=", iRet);
+    end
+
+    return iRet;
+end
+
 function Test()
     for idx = 1, 10 do
         unitbase.operator_id = OperIdBase + idx;
@@ -265,6 +603,102 @@ function Test()
         TestGetFastUnitBaseByOperName(unitbase.operator_name);
         TestAddFundBaseData(idx, FundBase);
         TestGetFundBaseData(idx);
+
+        Business.unit_id = idx;
+        Business.business_id = idx;
+        TestInitBusiness(idx, Business);
+        Business.business_id = idx + 1000;
+        local tranIdx = TestNewTransaction(idx);
+        TestAddBusiness(idx, Business, tranIdx);
+        TestBusiRollbackData(idx, tranIdx);
+        TestGetAllBusiness(idx, 1);
+
+        Business.business_id = idx + 2000;
+        tranIdx = TestNewTransaction(idx);
+        TestAddBusiness(idx, Business, tranIdx);
+        TestLockSaveInfo(idx);
+        TestBusiGetSaveInfo(idx);
+        TestBusiDoneSaveInfo(idx);
+        TestUnlockSaveInfo(idx);
+
+        TestLockSaveInfo(idx);
+        TestBusiGetSaveInfo(idx, 0);
+        TestBusiDoneSaveInfo(idx);
+        TestUnlockSaveInfo(idx);
+
+        TestBusiReleaseData(idx);
+
+        TestAssetInitData(idx, UnitAsset);
+
+        local UnitAssetUpdate = {
+            currency_code = "cny", 
+            current_cash = 0,
+            prebuy_balance = 10, 
+            prebuy_fee = 10, 
+            presale_balance = 10, 
+            presale_fee = 10, 
+        };
+        tranIdx = TestNewTransaction(idx);
+        TestAssetUpdateByEntrust(idx, UnitAssetUpdate, tranIdx);
+        
+        UnitAssetUpdate = {
+            currency_code = "cny", 
+            current_cash = 100,
+            prebuy_balance = -10, 
+            prebuy_fee = -10, 
+            presale_balance = -10, 
+            presale_fee = -10, 
+        };
+        TestAssetUpdateByBusiness(idx, UnitAssetUpdate, tranIdx);
+        local asset = TestAssetGetData(idx, "cny");
+
+        if asset then 
+            if asset[5] ~= UnitAsset.current_cash + UnitAssetUpdate.current_cash then
+                print("TestAssetGetData.current_cash=" .. asset[5]);
+            end
+        else
+            print("TestAssetGetData.current_cash not found");
+        end
+
+        UnitAssetUpdate = {
+            currency_code = "cny", 
+            current_cash = 0,
+            prebuy_balance = 10, 
+            prebuy_fee = 10, 
+            presale_balance = 10, 
+            presale_fee = 10, 
+        };
+        tranIdx = TestNewTransaction(idx);
+        TestAssetUpdateByEntrust(idx, UnitAssetUpdate, tranIdx);
+        UnitAssetUpdate = {
+            currency_code = "cny", 
+            current_cash = 100,
+            prebuy_balance = -10, 
+            prebuy_fee = -10, 
+            presale_balance = -10, 
+            presale_fee = -10, 
+        };
+        tranIdx = TestNewTransaction(idx);
+        TestAssetUpdateByBusiness(idx, UnitAssetUpdate, tranIdx);
+        TestAssetRollbackData(idx, tranIdx);
+
+        local asset = TestAssetGetData(idx, "cny");
+
+        if asset then 
+            if asset[5] ~= UnitAsset.current_cash + 100 then
+                print("==TestAssetGetData.current_cash=" .. asset[5]);
+            end
+        else
+            print("==TestAssetGetData.current_cash not found");
+        end
+
+        TestLockSaveInfo(idx);
+        TestAssetInitDbSaveInfo(idx);
+        TestAssetGetSaveInfo(idx);
+        TestAssetDoneSaveInfo(idx);
+        TestUnlockSaveInfo(idx);
+
+        TestAssetReleaseData(idx);
     end
 
     for idx = 702001001, 702001011 do
@@ -277,6 +711,15 @@ function Test()
         TestGetFastUnitBaseByOperName(unitbase.operator_name);
         TestAddFundBaseData(idx, FundBase);
         TestGetFundBaseData(idx);
+
+        Business.unit_id = idx;
+        Business.business_id = idx;
+        TestInitBusiness(idx, Business);
+        Business.business_id = idx + 1000;
+        TestAddBusiness(idx, Business);
+        TestGetAllBusiness(idx, 2);
+
+        TestBusiReleaseData(idx);
     end
 end
 

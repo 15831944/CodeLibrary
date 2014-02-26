@@ -136,4 +136,38 @@
     PINT(L, 3); PINT(L, (p)->seesion_id); lua_settable(L, -3); \
     PINT(L, 4); PLS(L, (p)->sql.c_str(), (p)->sql.length()); lua_settable(L, -3)
 
+//----unitasset----
+#define LUAUNPACK_UNITASSET(L, p) \
+    (p)->busin_date = PAI(L, 1); \
+    (p)->unit_id = PAI(L, 2); \
+    CS((p)->currency_code, L, 3); \
+    (p)->begin_cash = PAD(L, 4); \
+    (p)->current_cash = PAD(L, 5); \
+    (p)->prebuy_balance = PAD(L, 6); \
+    (p)->prebuy_fee = PAD(L, 7); \
+    (p)->presale_balance = PAD(L, 8); \
+    (p)->presale_fee = PAD(L, 9); \
+    (p)->input_balance = PAD(L, 10); \
+    (p)->output_balance = PAD(L, 11); \
+    (p)->input_total = PAD(L, 12); \
+    (p)->output_total = PAD(L, 13)
+
+#define LUAPACK_UNITASSET_TABLE(L, p) lua_newtable(L); \
+    PINT(L, 1); PINT(L, (p)->busin_date); lua_settable(L, -3); \
+    PINT(L, 2); PINT(L, (p)->unit_id); lua_settable(L, -3); \
+    PINT(L, 3); PS(L, (p)->currency_code); lua_settable(L, -3); \
+    PINT(L, 4); PN(L, (p)->begin_cash); lua_settable(L, -3); \
+    PINT(L, 5); PN(L, (p)->current_cash); lua_settable(L, -3); \
+    PINT(L, 6); PN(L, (p)->prebuy_balance); lua_settable(L, -3); \
+    PINT(L, 7); PN(L, (p)->prebuy_fee); lua_settable(L, -3); \
+    PINT(L, 8); PN(L, (p)->presale_balance); lua_settable(L, -3); \
+    PINT(L, 9); PN(L, (p)->presale_fee); lua_settable(L, -3); \
+    PINT(L, 10); PN(L, (p)->input_balance); lua_settable(L, -3); \
+    PINT(L, 11); PN(L, (p)->output_balance); lua_settable(L, -3); \
+    PINT(L, 12); PN(L, (p)->input_total); lua_settable(L, -3); \
+    PINT(L, 13); PN(L, (p)->output_total); lua_settable(L, -3)
+
+#define LUAPACK_DBWRITEITEM_ITEM_TABLE(L, p) lua_newtable(L); \
+    PINT(L, 1); PLS(L, (p)->sql.c_str(), (p)->sql.length()); lua_settable(L, -3)
+
 #endif

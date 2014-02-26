@@ -90,7 +90,8 @@ private:
 
         for(; idx < N; ++idx){
             m_lpTail->pBuffNext = pArr + idx;
-            pArr[idx].pBuffNext = NULL;
+            m_lpTail = m_lpTail->pBuffNext;
+            m_lpTail->pBuffNext = NULL;
         }
 
         m_arrList.push_back(pArr);
