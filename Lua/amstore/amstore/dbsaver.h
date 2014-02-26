@@ -4,19 +4,20 @@
 #include <list>
 #include "config.h"
 #include "luautil/luautil.h"
+#include "sys/sync.h"
 #include "typedef.h"
 #include "loger.h"
+#include "tradedate.h"
 
 //数据以SQL形式保存到数据库
 //支持的操作有：
 //  初始化待保存的信息
 //  获取SQL形式的保存信息
 //  保存完成后确认操作
-template <typename I, typename D>
 class DBSaver
 {
 public:
-    DBSaver():itemIndex(0){};
+    DBSaver(TradeData* const p):pTradeData(p){};
 
     virtual ~DBSaver(){
         ReleaseItem();
@@ -26,46 +27,48 @@ public:
         LOG(INFO) << "[DBSaver::InitSaveInfo]start." << LOG_END_FLAG;
         int iRes, iInsert, iUpdate;
 
+        criSect.Lock();
         ReleaseItem();
+        iRes = pTradeData->GetDbUpdateInfo(pList, &iInsert, &iUpdate);
+        criSect.Unlock();
 
-        //iRes = Store::getInstance().getDBNeedToUpdate(unitId, &pList, pCacheList, size, &iInsert, &iUpdate);
-        iRes = Store::getInstance().getDBNeedToUpdate(unitId, &pList, &iInsert, &iUpdate);
-        itemIndex = 0;
-
-        LOG(INFO) << "[DBSaver::InitSaveInfo]end.iRes=" << iRes << LOG_END_FLAG;
+        LOG(INFO) << "[DBSaver::InitSaveInfo]end.iRes=" << iRes << ",size=" << pList.size() << LOG_END_FLAG;
         return iRes;
     };
 
-    Item* GetNext(){
-        LOG(INFO) << "[DBSaver::GetNext]start.itemIndex=" << itemIndex << ",size=" << pList.size() << LOG_END_FLAG;
-        ItemBase* pRes = NULL;
-        if(itemIndex >= 0 && itemIndex < pList.size()){
-            pRes = pList[itemIndex];
-            itemIndex++;
-        }
-        LOG(INFO) << "[DBSaver::GetNext]end." << LOG_END_FLAG;
-        return (Item*)pRes;
+    int GetSaveInfo(std::list<DBWriteItem*>& pListOut){
+        LOG(INFO) << "[DBSaver::GetSaveInfo]start.size=" << pList.size() << LOG_END_FLAG;
+        pListOut.clear();
+        criSect.Lock();
+        pListOut.assign(pList.begin(), pList.end());
+        criSect.Unlock();
+        LOG(INFO) << "[DBSaver::GetSaveInfo]end." << LOG_END_FLAG;
+        return pList.size();
     };
 
-    int DoneSaveInfo(const int unitId){
+    int DoneSaveInfo(){
         LOG(INFO) << "[DBSaver::DoneSaveInfo]start." << LOG_END_FLAG;
         int iRes, iInsert, iUpdate;
 
-        iRes = Store::getInstance().doneDBUpdate(unitId, &pList);
+        criSect.Lock();
+        iRes = pTradeData->DoneDbUpdata(pList);
+        criSect.Unlock();
 
         LOG(INFO) << "[DBSaver::DoneSaveInfo]end.iRes=" << iRes << LOG_END_FLAG;
         return iRes;
     };
 private:
     void ReleaseItem(){
-        for(std::list<ItemBase*>::iterator it = pList.begin(); it != pList.end(); it++){
-            I* p = (I*)(*it);
+        for(std::list<DBWriteItem*>::iterator it = pList.begin(); it != pList.end(); it++){
+            DBWriteItem* p = static_cast<DBWriteItem*>(*it);
             delete p;
         }
         pList.clear();
     };
 private:
     std::list<DBWriteItem*> pList;
+    TradeData* const pTradeData;
+    CCriticalSection criSect;
 };
 
 #endif

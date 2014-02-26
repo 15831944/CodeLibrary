@@ -11,6 +11,8 @@
 #include "config.h"
 #include "typedef.h"
 #include "loger.h"
+#include "business.h"
+#include "unitasset.h"
 
 using std::list;
 using std::hash_map;
@@ -23,14 +25,11 @@ public:
     static RegType methods[];
 public:
     UnitData():unit_id(0){
-        cout << "UnitData construct" << endl;
     }
     UnitData(lua_State* L){
         new (this) UnitData();
-        cout << "UnitData construct lua" << endl;
     }
     virtual ~UnitData(){
-        cout << "UnitData destruct" << endl;
     }
 
     //需要确保创建之后，对应的UnitData的地址不会变化，因lua中会保存其userdate
@@ -55,6 +54,28 @@ public:
     int AddFundBaseData(lua_State* L);
     int GetFundBaseData(lua_State* L);
 
+    int NewTransaction(lua_State* L);
+    int LockSaveInfo(lua_State* L);
+    int UnlockSaveInfo(lua_State* L);
+
+    int BusiInitData(lua_State* L);
+    int BusiAddData(lua_State* L);
+    int BusiGetAllData(lua_State* L);
+    int BusiReleaseData(lua_State* L);
+    int BusiRollbackData(lua_State* L);
+    int BusiInitDbSaveInfo(lua_State* L);
+    int BusiGetSaveInfo(lua_State* L);
+    int BusiDoneSaveInfo(lua_State* L);
+
+    int AssetInitData(lua_State* L);
+    int AssetUpdateByEntrust(lua_State* L);
+    int AssetUpdateByBusiness(lua_State* L);
+    int AssetGetData(lua_State* L);
+    int AssetReleaseData(lua_State* L);
+    int AssetRollbackData(lua_State* L);
+    int AssetInitDbSaveInfo(lua_State* L);
+    int AssetGetSaveInfo(lua_State* L);
+    int AssetDoneSaveInfo(lua_State* L);
 private:
     //根据unitid获取UnitData*，若无返回NULL
     static UnitData* GetByUnitId(const UnitId_T id);
@@ -78,7 +99,10 @@ private:
     UnitId_T unit_id;
     UnitBaseData *pUnitBaseData;
     FundBaseData *pFundBaseData;
-    SerialGenerater serialGen;
+    SerialGenerater serialGenTran;
+    BusinessData* pBusiData;
+    UnitAssetData* pAssetDate;
+    CCriticalSection criSectSI;
 
     friend int GetUnitBaseByOperId_F(lua_State* L);
     friend int GetUnitBaseByOperName_F(lua_State* L);

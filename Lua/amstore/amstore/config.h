@@ -4,6 +4,9 @@
 #include "luautil/luautil.h"
 #include "sys/types.h"
 
+const int32_t MAX_DB_WRITE_COUNT = 500;
+const int32_t TRAN_DATA_COUNT = 2000;
+
 const int32_t UNITCODE_LEN = 32;
 const int32_t UNITNAME_LEN = 64;
 const int32_t FUNDCODE_LEN = 32;
@@ -17,7 +20,6 @@ const int32_t OPERATOR_NAME_LEN = 64;
 const int32_t INSTITUTION_NAME_LEN = 64;
 const int32_t CTS_VERSION_LEN = 64;
 const int32_t STOCKACCOUNT_LEN = 64;
-
 
 typedef int32_t GenericId_T;
 typedef int32_t UnitId_T;

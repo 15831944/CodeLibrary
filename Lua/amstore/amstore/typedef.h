@@ -52,8 +52,8 @@ typedef struct TBusiness{
     BusinessId_T business_id;
     ExtBusinessId_T ext_business_id;
     int businclass_code;
-    int fund_id;
-    int unit_id;
+    FundId_T fund_id;
+    UnitId_T unit_id;
     CombiCode_T combi_code;
     StockCode_T stock_code;
     Currency_T balance;
@@ -62,8 +62,8 @@ typedef struct TBusiness{
     Amount_T business_amount;
     Amount_T current_amount;
     Price_T business_price;
-    int business_time;
-    int entrust_id;
+    int32_t business_time;
+    EntrustId_T entrust_id;
     EntDirCode_T entrustdirection_code;
     Currency_T jy_fee;
     Currency_T js_fee;
@@ -83,11 +83,32 @@ typedef struct TBusiness{
     struct TBusiness* pBuffNext;
 } Business;
 
+typedef struct UnitAsset{
+    int32_t busin_date;
+    UnitId_T unit_id;
+    CurrencyCode_T currency_code;
+    Currency_T begin_cash;
+    Currency_T current_cash;
+    Currency_T prebuy_balance;
+    Currency_T prebuy_fee;
+    Currency_T presale_balance;
+    Currency_T presale_fee;
+    Currency_T input_balance;
+    Currency_T output_balance;
+    Currency_T input_total;
+    Currency_T output_total;
+
+    OperateType opType;
+    VersionIdx_T versionIdx;
+    TransactionIdx_T tranIdx;
+};
+
 typedef struct TranBusiness{
     TransactionIdx_T tranIdx;
     BusinessId_T business_id;
 }TranBusiness;
 
+typedef UnitAsset TranAsset;
 
 typedef struct DBWriteItem{
     int versionIdx;
@@ -95,5 +116,17 @@ typedef struct DBWriteItem{
 
     DBWriteItem():versionIdx(0){}
 }DBWriteItem;
+
+typedef struct DBWriteBusi : public DBWriteItem{
+    BusinessId_T business_id;
+
+    DBWriteBusi():business_id(0){}
+}DBWriteBusi;
+
+typedef struct DBWriteAsset: public DBWriteItem{
+    CurrencyCode_T currency_code;
+
+    DBWriteAsset(){memset(currency_code, 0, sizeof(currency_code));};
+}DBWriteAsset;
 
 #endif
