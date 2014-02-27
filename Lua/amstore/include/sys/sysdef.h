@@ -23,6 +23,7 @@
 #include <cassert>
 #include <Windows.h>
 #define ASSERT assert
+#define snprintf _snprintf
 #endif 
 
 #endif

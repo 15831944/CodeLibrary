@@ -19,13 +19,13 @@ using std::list;
 using std::vector;
 using std::find_if;
 
-class UnitAssetData : public TradeData{
+class AssetData : public TradeData{
 public:
-    UnitAssetData()
+    AssetData()
     {
         pDbSav = new DBSaver(this);
     };
-    virtual ~UnitAssetData(){};
+    virtual ~AssetData(){};
     virtual int Init()
     {
         return 0;

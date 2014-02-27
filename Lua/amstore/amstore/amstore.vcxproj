@@ -85,8 +85,11 @@
     <ClCompile Include="amstorelib.cpp" />
     <ClCompile Include="business.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="entrust.cpp" />
     <ClCompile Include="loger.cpp" />
     <ClCompile Include="luaobject.cpp" />
+    <ClCompile Include="stockcode.cpp" />
+    <ClCompile Include="tools.cpp" />
     <ClCompile Include="unitasset.cpp" />
     <ClCompile Include="unitdata.cpp" />
   </ItemGroup>
@@ -108,11 +111,13 @@
     <ClInclude Include="loger.h" />
     <ClInclude Include="luacode.h" />
     <ClInclude Include="luaobject.h" />
+    <ClInclude Include="tools.h" />
     <ClInclude Include="tradedate.h" />
     <ClInclude Include="trandata.h" />
     <ClInclude Include="typedef.h" />
     <ClInclude Include="unitasset.h" />
     <ClInclude Include="unitdata.h" />
+    <ClInclude Include="unitstock.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

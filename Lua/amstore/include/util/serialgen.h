@@ -22,6 +22,13 @@ public:
         cri.Unlock();
         return iRes;
     };
+
+    int GetCurSerial(){
+        cri.Lock();
+        int iRes = iSerial;
+        cri.Unlock();
+        return iRes;
+    };
 private:
     int iSerial;
     CCriticalSection cri;

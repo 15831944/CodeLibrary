@@ -13,6 +13,8 @@
 #include "loger.h"
 #include "business.h"
 #include "unitasset.h"
+#include "entrust.h"
+#include "unitstock.h"
 
 using std::list;
 using std::hash_map;
@@ -58,6 +60,28 @@ public:
     int LockSaveInfo(lua_State* L);
     int UnlockSaveInfo(lua_State* L);
 
+    int EntInitData(lua_State* L);
+    int EntAddData(lua_State* L);
+    int EntGetEntByEntId(lua_State* L);
+    int EntGetEntByRepId(lua_State* L);
+    int EntGetAllData(lua_State* L);
+    int EntGetDataByEntStatus(lua_State* L);
+    int EntUpdateEntToRevokeInner(lua_State* L);
+    int EntUpdateEntStatus(lua_State* L);
+    int EntUpdateEntByRevOrder(lua_State* L);
+    int EntUpdateEntByReport(lua_State* L);
+    int EntUpdateRevByReport(lua_State* L);
+    int EntUpdateEntByWaste(lua_State* L);
+    int EntUpdateEntByRevoke(lua_State* L);
+    int EntUpdateEntByRevokeWaste(lua_State* L);
+    int EntUpdateRevByRevokeWaste(lua_State* L);
+    int EntUpdateEntByBusiness(lua_State* L);
+    int EntReleaseData(lua_State* L);
+    int EntRollbackData(lua_State* L);
+    int EntInitDbSaveInfo(lua_State* L);
+    int EntGetSaveInfo(lua_State* L);
+    int EntDoneSaveInfo(lua_State* L);
+
     int BusiInitData(lua_State* L);
     int BusiAddData(lua_State* L);
     int BusiGetAllData(lua_State* L);
@@ -76,6 +100,18 @@ public:
     int AssetInitDbSaveInfo(lua_State* L);
     int AssetGetSaveInfo(lua_State* L);
     int AssetDoneSaveInfo(lua_State* L);
+
+    int StockInitData(lua_State* L);
+    int StockGetDataByCode(lua_State* L);
+    int StockGetAllData(lua_State* L);
+    int StockUpdateDataByEntrust(lua_State* L);
+    int StockUpdateDataByBusiness(lua_State* L);
+    int StockRollbackData(lua_State* L);
+    int StockReleaseData(lua_State* L);
+    int StockInitDbSaveInfo(lua_State* L);
+    int StockGetSaveInfo(lua_State* L);
+    int StockDoneSaveInfo(lua_State* L);
+
 private:
     //根据unitid获取UnitData*，若无返回NULL
     static UnitData* GetByUnitId(const UnitId_T id);
@@ -100,8 +136,10 @@ private:
     UnitBaseData *pUnitBaseData;
     FundBaseData *pFundBaseData;
     SerialGenerater serialGenTran;
+    EntrustData* pEntData;
     BusinessData* pBusiData;
-    UnitAssetData* pAssetDate;
+    AssetData* pAssetData;
+    StockData* pStockData;
     CCriticalSection criSectSI;
 
     friend int GetUnitBaseByOperId_F(lua_State* L);

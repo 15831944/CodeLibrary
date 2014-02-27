@@ -7,7 +7,9 @@
 typedef enum TOperateType{
     OperateTypeInit = 0,
     OperateTypeUpdate = 1,
-    OperateTypeInsert = 2
+    OperateTypeInsert = 2,
+
+    OperateTypeDiff = 3
 }OperateType;
 
 typedef struct TUnitBaseData
@@ -143,6 +145,33 @@ typedef struct UnitAsset{
     TransactionIdx_T tranIdx;
 };
 
+typedef struct UnitStock{
+    int32_t busin_date;
+    UnitId_T unit_id;
+    StockCode_T stock_code;
+    BS_T bs;
+    Amount_T begin_amount;
+    Currency_T begin_cost;
+    Currency_T begin_total_profit;
+    Currency_T begin_total_buyfee;
+    Currency_T begin_total_salefee;
+    Amount_T current_amount;
+    Amount_T prebuy_amount;
+    Amount_T presale_amount;
+    Currency_T prebuy_balance;
+    Currency_T presale_balance;
+    Amount_T buy_amount;
+    Amount_T sale_amount;
+    Currency_T buy_balance;
+    Currency_T sale_balance;
+    Currency_T buy_fee;
+    Currency_T sale_fee;
+
+    OperateType opType;
+    VersionIdx_T versionIdx;
+    TransactionIdx_T tranIdx;
+}UnitStock;  
+
 typedef struct TranBusiness{
     TransactionIdx_T tranIdx;
     BusinessId_T business_id;
@@ -152,12 +181,25 @@ typedef UnitAsset TranAsset;
 
 typedef Entrust TranEntrust;
 
+typedef UnitStock TranStock;
+
+//typedef struct TranEntrust{
+//    Entrust ent;
+//    Entrust rev;
+//};
+
 typedef struct DBWriteItem{
     int versionIdx;
     std::string sql;
 
     DBWriteItem():versionIdx(0){}
 }DBWriteItem;
+
+typedef struct DBWriteEnt : public DBWriteItem{
+    EntrustId_T entrust_id;
+
+    DBWriteEnt():entrust_id(0){}
+}DBWriteEnt;
 
 typedef struct DBWriteBusi : public DBWriteItem{
     BusinessId_T business_id;
@@ -170,5 +212,12 @@ typedef struct DBWriteAsset: public DBWriteItem{
 
     DBWriteAsset(){memset(currency_code, 0, sizeof(currency_code));};
 }DBWriteAsset;
+
+typedef struct DBWriteStock: public DBWriteItem{
+    StockCode_T stock_code;
+    BS_T bs;
+
+    DBWriteStock():bs(0){memset(stock_code, 0, sizeof(stock_code));};
+}DBWriteStock;
 
 #endif

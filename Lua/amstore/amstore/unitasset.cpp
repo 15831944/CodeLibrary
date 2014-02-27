@@ -1,8 +1,8 @@
 #include "unitasset.h"
 
-UnitAsset* UnitAssetData::InitData(const UnitAsset* pData)
+UnitAsset* AssetData::InitData(const UnitAsset* pData)
 {
-    LOG(INFO) << "[UnitAssetData::InitData]start.pAssetList.size=" << pAssetList.size()
+    LOG(INFO) << "[AssetData::InitData]start.pAssetList.size=" << pAssetList.size()
         << ",currency_code=" << pData->currency_code << ",current_cash=" << pData->current_cash 
         << ",prebuy_balance=" << pData->prebuy_balance << ",presale_balance=" << pData->presale_balance 
         << ",prebuy_fee=" << pData->prebuy_fee << ",presale_fee=" << pData->presale_fee << LOG_END_FLAG;
@@ -20,17 +20,17 @@ UnitAsset* UnitAssetData::InitData(const UnitAsset* pData)
         delete pNewAsset;
         pNewAsset = NULL;
 
-        LOG(ERROR) << "[UnitAssetData::InitData]already has the data." << LOG_END_FLAG;
+        LOG(ERROR) << "[AssetData::InitData]already has the data." << LOG_END_FLAG;
     }
     criSect.Unlock();
 
-    LOG(INFO) << "[UnitAssetData::InitData]end.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::InitData]end.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
     return pNewAsset;
 }
 
-UnitAsset* UnitAssetData::GetData(CurrencyCode_T curCode, UnitAsset* pData)
+UnitAsset* AssetData::GetData(CurrencyCode_T curCode, UnitAsset* pData)
 {
-    LOG(INFO) << "[UnitAssetData::GetData]start.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::GetData]start.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
 
     UnitAsset* pRet = NULL;
     criSect.Lock();
@@ -39,24 +39,24 @@ UnitAsset* UnitAssetData::GetData(CurrencyCode_T curCode, UnitAsset* pData)
         memcpy(pData, *it, sizeof(*pData));
         pRet = pData;
     }else{
-        LOG(ERROR) << "[UnitAssetData::InitData]data not found.curCode=" << curCode << LOG_END_FLAG;
+        LOG(ERROR) << "[AssetData::InitData]data not found.curCode=" << curCode << LOG_END_FLAG;
     }
     criSect.Unlock();
 
-    LOG(INFO) << "[UnitAssetData::GetData]end.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::GetData]end.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
     return pRet;
 }
 
-int UnitAssetData::UpdateByEntrust(const UnitAsset* pData, const TransactionIdx_T tranIdx)
+int AssetData::UpdateByEntrust(const UnitAsset* pData, const TransactionIdx_T tranIdx)
 {
-    LOG(INFO) << "[UnitAssetData::UpdateByEntrust]start.currency_code=" << pData->currency_code << ",tranIdx=" << tranIdx << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::UpdateByEntrust]start.currency_code=" << pData->currency_code << ",tranIdx=" << tranIdx << LOG_END_FLAG;
     TranAsset* pNewTran = pTranData.NewTranData(tranIdx);
     if(!pNewTran){
-        LOG(ERROR) << "[UnitAssetData::UpdateByEntrust]get new tran data faild." << LOG_END_FLAG;
+        LOG(ERROR) << "[AssetData::UpdateByEntrust]get new tran data faild." << LOG_END_FLAG;
         return -1;
     }
 
-    LOG(INFO) << "[UnitAssetData::UpdateByEntrust]pNewTran=" << pNewTran << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::UpdateByEntrust]pNewTran=" << pNewTran << LOG_END_FLAG;
     UnitAsset* pAsset = NULL;
     criSect.Lock();
     vector<UnitAsset*>::iterator it = std::find_if(pAssetList.begin(), pAssetList.end(), AssetFunctorEqual(pData->currency_code));
@@ -76,30 +76,30 @@ int UnitAssetData::UpdateByEntrust(const UnitAsset* pData, const TransactionIdx_
         pNewTran->tranIdx = tranIdx;
         memcpy(pNewTran->currency_code, pAsset->currency_code, sizeof(pNewTran->currency_code));
 
-        LOG(INFO) << "[UnitAssetData::UpdateByEntrust]pNewTran=currency_code=" << pNewTran->currency_code 
+        LOG(INFO) << "[AssetData::UpdateByEntrust]pNewTran=currency_code=" << pNewTran->currency_code 
         << ",current_cash=" << pNewTran->current_cash << ",prebuy_balance=" << pNewTran->prebuy_balance 
         << ",presale_balance=" << pNewTran->presale_balance << ",prebuy_fee=" << pNewTran->prebuy_fee
         << ",presale_fee=" << pNewTran->presale_fee << LOG_END_FLAG;
     }else{
-        LOG(ERROR) << "[UnitAssetData::UpdateByEntrust]asset not found." << LOG_END_FLAG;
+        LOG(ERROR) << "[AssetData::UpdateByEntrust]asset not found." << LOG_END_FLAG;
     }
     criSect.Unlock();
 
-    LOG(INFO) << "[UnitAssetData::UpdateByEntrust]end.currency_code=" << pNewTran->currency_code 
+    LOG(INFO) << "[AssetData::UpdateByEntrust]end.currency_code=" << pNewTran->currency_code 
         << ",current_cash=" << pNewTran->current_cash << LOG_END_FLAG;
     return 0;
 }
 
-int UnitAssetData::UpdateByBusiness(const UnitAsset* pData, const TransactionIdx_T tranIdx)
+int AssetData::UpdateByBusiness(const UnitAsset* pData, const TransactionIdx_T tranIdx)
 {
-    LOG(INFO) << "[UnitAssetData::UpdateByBusiness]start.currency_code=" << pData->currency_code << ",tranIdx=" << tranIdx << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::UpdateByBusiness]start.currency_code=" << pData->currency_code << ",tranIdx=" << tranIdx << LOG_END_FLAG;
     TranAsset* pNewTran = pTranData.NewTranData(tranIdx);
     if(!pNewTran){
-        LOG(ERROR) << "[UnitAssetData::UpdateByBusiness]get new tran data faild." << LOG_END_FLAG;
+        LOG(ERROR) << "[AssetData::UpdateByBusiness]get new tran data faild." << LOG_END_FLAG;
         return -1;
     }
 
-    LOG(INFO) << "[UnitAssetData::UpdateByBusiness]pNewTran=" << pNewTran << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::UpdateByBusiness]pNewTran=" << pNewTran << LOG_END_FLAG;
     UnitAsset* pAsset = NULL;
     criSect.Lock();
     vector<UnitAsset*>::iterator it = std::find_if(pAssetList.begin(), pAssetList.end(), AssetFunctorEqual(pData->currency_code));
@@ -119,25 +119,24 @@ int UnitAssetData::UpdateByBusiness(const UnitAsset* pData, const TransactionIdx
 
         memcpy(pNewTran, pData, sizeof(*pNewTran));
         pNewTran->tranIdx = tranIdx;
-        memcpy(pNewTran->currency_code, pAsset->currency_code, sizeof(pNewTran->currency_code));
 
-        LOG(INFO) << "[UnitAssetData::UpdateByBusiness]pNewTran=currency_code=" << pNewTran->currency_code 
+        LOG(INFO) << "[AssetData::UpdateByBusiness]pNewTran=currency_code=" << pNewTran->currency_code 
         << ",current_cash=" << pNewTran->current_cash << ",prebuy_balance=" << pNewTran->prebuy_balance 
         << ",presale_balance=" << pNewTran->presale_balance << ",prebuy_fee=" << pNewTran->prebuy_fee
         << ",presale_fee=" << pNewTran->presale_fee << LOG_END_FLAG;
     }else{
-        LOG(ERROR) << "[UnitAssetData::UpdateByBusiness]asset not found." << LOG_END_FLAG;
+        LOG(ERROR) << "[AssetData::UpdateByBusiness]asset not found." << LOG_END_FLAG;
     }
     criSect.Unlock();
 
-    LOG(INFO) << "[UnitAssetData::UpdateByBusiness]end.currency_code=" << pNewTran->currency_code 
+    LOG(INFO) << "[AssetData::UpdateByBusiness]end.currency_code=" << pNewTran->currency_code 
         << ",current_cash=" << pNewTran->current_cash << LOG_END_FLAG;
     return 0;
 }
 
-int UnitAssetData::ReleaseData()
+int AssetData::ReleaseData()
 {
-    LOG(INFO) << "[UnitAssetData::ReleaseData]start.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::ReleaseData]start.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
     int count = 0;
 
     criSect.Lock();
@@ -148,20 +147,20 @@ int UnitAssetData::ReleaseData()
     pAssetList.clear();
     criSect.Unlock();
 
-    LOG(INFO) << "[UnitAssetData::ReleaseData]end.count=" << count << "pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::ReleaseData]end.count=" << count << "pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
     return count;
 }
 
-int UnitAssetData::RollbackData(const TransactionIdx_T tranIdx)
+int AssetData::RollbackData(const TransactionIdx_T tranIdx)
 {
-    LOG(INFO) << "[UnitAssetData::RollbackData]start.tranIdx=" << tranIdx << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::RollbackData]start.tranIdx=" << tranIdx << LOG_END_FLAG;
     TranAsset* pTran = pTranData.GetTranData(tranIdx);
     if(!pTran){
         LOG(ERROR) << "[BusinessData::RollbackData]get tran data faild.tranIdx=" << tranIdx << LOG_END_FLAG;
         return -1;
     }
 
-    LOG(INFO) << "[UnitAssetData::RollbackData]pTran=" << pTran << "currency_code=" << pTran->currency_code 
+    LOG(INFO) << "[AssetData::RollbackData]pTran=" << pTran << "currency_code=" << pTran->currency_code 
         << ",current_cash=" << pTran->current_cash << ",prebuy_balance=" << pTran->prebuy_balance 
         << ",presale_balance=" << pTran->presale_balance << ",prebuy_fee=" << pTran->prebuy_fee
         << ",presale_fee=" << pTran->presale_fee << LOG_END_FLAG;
@@ -187,9 +186,9 @@ int UnitAssetData::RollbackData(const TransactionIdx_T tranIdx)
     return 0;
 }
 
-int UnitAssetData::GetDbUpdateInfo(std::list<DBWriteItem*>& pList, int *insert, int *update)
+int AssetData::GetDbUpdateInfo(std::list<DBWriteItem*>& pList, int *insert, int *update)
 {
-    LOG(INFO) << "[UnitAssetData::GetDbUpdateInfo]start.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::GetDbUpdateInfo]start.pAssetList.size=" << pAssetList.size() << LOG_END_FLAG;
 
     int uCount = 0;
     criSect.Lock();
@@ -212,7 +211,7 @@ int UnitAssetData::GetDbUpdateInfo(std::list<DBWriteItem*>& pList, int *insert, 
             pNew->sql.assign(ss.str().c_str());
             pList.push_back(pNew);
 
-            LOG(INFO) << "[UnitAssetData::GetDbUpdateInfo]update: " << pNew->sql << LOG_END_FLAG;
+            LOG(INFO) << "[AssetData::GetDbUpdateInfo]update: " << pNew->sql << LOG_END_FLAG;
 
             ++uCount;
         }
@@ -222,13 +221,13 @@ int UnitAssetData::GetDbUpdateInfo(std::list<DBWriteItem*>& pList, int *insert, 
     *insert = 0;
     *update = uCount;
 
-    LOG(INFO) << "[UnitAssetData::GetDbUpdateInfo]end.uCount=" << uCount << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::GetDbUpdateInfo]end.uCount=" << uCount << LOG_END_FLAG;
     return uCount;
 }
 
-int UnitAssetData::DoneDbUpdata(list<DBWriteItem*>& pList)
+int AssetData::DoneDbUpdata(list<DBWriteItem*>& pList)
 {
-    LOG(INFO) << "[UnitAssetData::DoneDbUpdata]start.size=" << pList.size() << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::DoneDbUpdata]start.size=" << pList.size() << LOG_END_FLAG;
     criSect.Lock();
     for(list<DBWriteItem*>::iterator it = pList.begin(); it != pList.end(); it++){
         DBWriteAsset* pDBAsset = static_cast<DBWriteAsset*>(*it);
@@ -241,17 +240,17 @@ int UnitAssetData::DoneDbUpdata(list<DBWriteItem*>& pList)
             if(pAssetItem->versionIdx == pDBAsset->versionIdx){
                 pAssetItem->opType = OperateTypeInit;
 
-                LOG(INFO) << "[UnitAssetData::DoneDbUpdata]OperateTypeInit=currency_code=" << pAssetItem->currency_code << LOG_END_FLAG;
+                LOG(INFO) << "[AssetData::DoneDbUpdata]OperateTypeInit=currency_code=" << pAssetItem->currency_code << LOG_END_FLAG;
             }else{
                 if(pAssetItem->opType == OperateTypeInsert){
                     pAssetItem->opType = OperateTypeUpdate;
                 }
             }
         }else{
-            LOG(ERROR) << "[UnitAssetData::DoneDbUpdata]get asset faild.currency_code=" << pDBAsset->currency_code << LOG_END_FLAG;
+            LOG(ERROR) << "[AssetData::DoneDbUpdata]get asset faild.currency_code=" << pDBAsset->currency_code << LOG_END_FLAG;
         }
     }
     criSect.Unlock();
-    LOG(INFO) << "[UnitAssetData::DoneDbUpdata]end." << LOG_END_FLAG;
+    LOG(INFO) << "[AssetData::DoneDbUpdata]end." << LOG_END_FLAG;
     return 0;
 }

@@ -7,6 +7,29 @@
 const int32_t MAX_DB_WRITE_COUNT = 500;
 const int32_t TRAN_DATA_COUNT = 2000;
 
+
+const char EntrustCancelFlag_No = '0';       //正常委托
+const char EntrustCancelFlag_Normal = '1';   //外部撤单
+const char EntrustCancelFlag_Inner = '2';     //内部撤单
+
+const char EntrustStatus_WeiBao = '1';
+const char EntrustStatus_DaiBao = '2';
+const char EntrustStatus_ZhengBao = '3';
+const char EntrustStatus_YiBao = '4';
+const char EntrustStatus_FeiDan = '5';
+const char EntrustStatus_BuCheng = '6';
+const char EntrustStatus_YiCheng = '7';
+const char EntrustStatus_BuChe = '8';
+const char EntrustStatus_YiChe = '9';
+const char EntrustStatus_DaiChe = 'a';
+const char EntrustStatus_WeiChe = 'A';
+const char EntrustStatus_DaiChe_R = 'B';
+const char EntrustStatus_ZhengChe = 'C';
+const char EntrustStatus_CheRen = 'D';
+const char EntrustStatus_CheFei = 'E';
+const char EntrustStatus_YiChe_R = 'F';
+
+
 const int32_t UNITCODE_LEN = 32;
 const int32_t UNITNAME_LEN = 64;
 const int32_t FUNDCODE_LEN = 32;
